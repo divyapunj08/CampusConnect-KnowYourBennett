@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register — CampusConnect</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:#f4f6fb; font-family:'Segoe UI',sans-serif; }
+
+        .navbar { background:linear-gradient(90deg,#1a1a2e,#16213e); padding:12px 30px; box-shadow:0 2px 20px rgba(0,0,0,.3); }
+        .navbar-brand { color:#fff!important; font-weight:800; font-size:22px; }
+        .navbar-brand span { color:#e94560; }
+
+        .page-hero { background:linear-gradient(135deg,#1a1a2e,#0f3460); color:#fff; padding:40px 0; }
+        .page-hero h1 { font-size:28px; font-weight:800; }
+
+        .form-wrapper { max-width:720px; margin:0 auto; padding:30px 15px 60px; }
+
+        .event-card { background:#fff; border-radius:16px; padding:22px; box-shadow:0 5px 20px rgba(0,0,0,.08); margin-bottom:25px; border-left:5px solid #e94560; display:flex; gap:20px; align-items:center; }
+        .event-icon { width:60px; height:60px; background:#fff0f3; border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .event-icon i { font-size:28px; color:#e94560; }
+        .event-name { font-size:18px; font-weight:800; color:#1a1a2e; margin-bottom:4px; }
+        .event-meta { font-size:13px; color:#888; display:flex; gap:15px; flex-wrap:wrap; }
+        .event-meta span { display:flex; align-items:center; gap:5px; }
+
+        .form-card { background:#fff; border-radius:20px; padding:35px; box-shadow:0 5px 25px rgba(0,0,0,.08); }
+        .form-section-title { font-size:15px; font-weight:700; color:#1a1a2e; margin-bottom:18px; padding-bottom:10px; border-bottom:2px solid #f0f0f0; display:flex; align-items:center; gap:8px; }
+        .form-label { font-weight:600; font-size:13px; color:#555; margin-bottom:5px; }
+        .form-control, .form-select { border-radius:10px; padding:11px 15px; border:1.5px solid #e0e0e0; font-size:14px; transition:all .3s; }
+        .form-control:focus, .form-select:focus { border-color:#e94560; box-shadow:0 0 0 3px rgba(233,69,96,.1); outline:none; }
+        .required-star { color:#e94560; }
+        .form-hint { font-size:11px; color:#aaa; margin-top:4px; }
+
+        .btn-submit { background:#e94560; color:#fff; border:none; padding:14px 40px; border-radius:12px; font-weight:700; font-size:15px; width:100%; transition:all .3s; cursor:pointer; }
+        .btn-submit:hover { background:#0f3460; }
+        .btn-back { background:#f0f2f5; color:#1a1a2e; border:none; padding:14px 30px; border-radius:12px; font-weight:600; font-size:14px; text-decoration:none; display:inline-block; transition:all .3s; margin-right:10px; }
+        .btn-back:hover { background:#e0e2e5; color:#1a1a2e; }
+
+        .seats-info { background:#fff8f0; border:1.5px solid #f77f00; border-radius:10px; padding:12px 16px; margin-bottom:20px; font-size:13px; color:#854f0b; display:flex; align-items:center; gap:10px; }
+        .seats-info.unlimited { background:#f0fff4; border-color:#2d6a4f; color:#1b4332; }
+
+        .steps { display:flex; gap:0; margin-bottom:30px; }
+        .step { flex:1; text-align:center; position:relative; }
+        .step-circle { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; margin:0 auto 6px; }
+        .step.done .step-circle { background:#28a745; color:#fff; }
+        .step.active .step-circle { background:#e94560; color:#fff; }
+        .step.pending .step-circle { background:#f0f0f0; color:#888; }
+        .step-label { font-size:11px; color:#888; font-weight:600; }
+        .step.active .step-label { color:#e94560; }
+        .step::after { content:''; position:absolute; top:16px; left:50%; width:100%; height:2px; background:#f0f0f0; z-index:0; }
+        .step:last-child::after { display:none; }
+        .step.done::after { background:#28a745; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand"><i class="bi bi-mortarboard-fill me-2"></i>Campus<span>Connect</span></a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" th:href="@{/student/dashboard}" style="color:rgba(255,255,255,.8);">
+                <i class="bi bi-house"></i> Home
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="page-hero">
+    <div class="container">
+        <h1><i class="bi bi-pencil-square me-2"></i>Event Registration</h1>
+        <p style="opacity:.8;margin-top:8px;font-size:14px;">Fill in your details to confirm your spot</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="form-wrapper">
+
+        <!-- Progress Steps -->
+        <div class="steps">
+            <div class="step done">
+                <div class="step-circle" style="position:relative;z-index:1;"><i class="bi bi-check-lg"></i></div>
+                <div class="step-label">Browse Event</div>
+            </div>
+            <div class="step active">
+                <div class="step-circle" style="position:relative;z-index:1;">2</div>
+                <div class="step-label">Fill Details</div>
+            </div>
+            <div class="step pending">
+                <div class="step-circle" style="position:relative;z-index:1;">3</div>
+                <div class="step-label">Confirmed</div>
+            </div>
+        </div>
+
+        <!-- Event Info Card -->
+        <div class="event-card">
+            <div class="event-icon">
+                <i th:if="${event.category == 'Competition'}" class="bi bi-trophy"></i>
+                <i th:if="${event.category == 'Workshop'}" class="bi bi-tools"></i>
+                <i th:if="${event.category == 'Fest'}" class="bi bi-music-note-beamed"></i>
+                <i th:if="${event.category == 'Seminar'}" class="bi bi-mic"></i>
+                <i th:if="${event.category == 'Sports'}" class="bi bi-trophy-fill"></i>
+                <i th:if="${event.category == 'Cultural'}" class="bi bi-palette"></i>
+                <i th:if="${event.category == 'Club-Tech'}" class="bi bi-code-slash"></i>
+                <i th:if="${event.category == 'Club-Cultural'}" class="bi bi-camera"></i>
+                <i th:if="${event.category == null}" class="bi bi-calendar-event"></i>
+            </div>
+            <div>
+                <div class="event-name" th:text="${event.title}">Event Title</div>
+                <div class="event-meta">
+                    <span><i class="bi bi-calendar3"></i> <span th:text="${event.date}">Date</span></span>
+                    <span><i class="bi bi-clock"></i> <span th:text="${event.time}">Time</span></span>
+                    <span><i class="bi bi-geo-alt"></i> <span th:text="${event.venue}">Venue</span></span>
+                    <span th:if="${event.category != null}"><i class="bi bi-tag"></i> <span th:text="${event.category}">Category</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seats Info -->
+        <div th:if="${event.maxParticipants > 0}" class="seats-info">
+            <i class="bi bi-people-fill" style="font-size:18px;flex-shrink:0;"></i>
+            <div>Limited seats available — <strong th:text="${event.maxParticipants}">100</strong> total. Register quickly to confirm your spot!</div>
+        </div>
+        <div th:if="${event.maxParticipants == 0}" class="seats-info unlimited">
+            <i class="bi bi-check-circle-fill" style="font-size:18px;flex-shrink:0;"></i>
+            <div>Open registration — no seat limit. Everyone is welcome!</div>
+        </div>
+
+        <!-- Registration Form -->
+        <div class="form-card">
+            <form th:action="@{/student/events/{id}/register(id=${event.id})}"
+                  method="post">
+
+                <!-- Personal Details -->
+                <div class="form-section-title">
+                    <i class="bi bi-person-fill" style="color:#e94560;"></i>
+                    Personal Details
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Full Name <span class="required-star">*</span></label>
+                        <input type="text" name="fullName" class="form-control"
+                               th:value="${registration.fullName}"
+                               placeholder="Enter your full name" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">University Email <span class="required-star">*</span></label>
+                        <input type="email" name="email" class="form-control"
+                               th:value="${registration.email}"
+                               placeholder="e22xxxx@bennett.edu.in" required>
+                        <div class="form-hint">Use your Bennett University email</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Phone Number <span class="required-star">*</span></label>
+                        <input type="tel" name="phoneNumber" class="form-control"
+                               th:value="${registration.phoneNumber}"
+                               placeholder="+91 XXXXX XXXXX" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Enrollment Number <span class="required-star">*</span></label>
+                        <input type="text" name="enrollment" class="form-control"
+                               placeholder="e.g. E22CSE001" required>
+                        <div class="form-hint">Your Bennett University enrollment number</div>
+                    </div>
+                </div>
+
+                <!-- Academic Details -->
+                <div class="form-section-title" style="margin-top:10px;">
+                    <i class="bi bi-building" style="color:#4361ee;"></i>
+                    Academic Details
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Department <span class="required-star">*</span></label>
+                        <select name="department" class="form-select" required>
+                            <option value="">Select your department</option>
+                            <optgroup label="School of Computer Science & Engineering">
+                                <option value="CSE">CSE — Computer Science & Engineering</option>
+                                <option value="CSE-AI">CSE (AI/ML)</option>
+                                <option value="CSE-DS">CSE (Data Science)</option>
+                                <option value="CSE-IoT">CSE (IoT)</option>
+                                <option value="IT">IT — Information Technology</option>
+                            </optgroup>
+                            <optgroup label="School of Engineering">
+                                <option value="ECE">ECE — Electronics & Communication</option>
+                                <option value="ME">ME — Mechanical Engineering</option>
+                                <option value="CE">CE — Civil Engineering</option>
+                            </optgroup>
+                            <optgroup label="School of Management">
+                                <option value="BBA">BBA — Business Administration</option>
+                                <option value="MBA">MBA</option>
+                                <option value="BBA-IB">BBA (International Business)</option>
+                            </optgroup>
+                            <optgroup label="School of Law">
+                                <option value="BA-LLB">BA LLB (Hons.)</option>
+                                <option value="BBA-LLB">BBA LLB (Hons.)</option>
+                                <option value="LLM">LLM</option>
+                            </optgroup>
+                            <optgroup label="School of Liberal Arts">
+                                <option value="BSc-Psychology">BSc Psychology</option>
+                                <option value="BA-Economics">BA Economics</option>
+                                <option value="BA-Journalism">BA Journalism & Mass Communication</option>
+                            </optgroup>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Year of Study <span class="required-star">*</span></label>
+                        <select name="yearOfStudy" class="form-select" required>
+                            <option value="">Select year</option>
+                            <option value="1st Year">1st Year</option>
+                            <option value="2nd Year">2nd Year</option>
+                            <option value="3rd Year">3rd Year</option>
+                            <option value="4th Year">4th Year</option>
+                            <option value="5th Year">5th Year</option>
+                            <option value="PG 1st Year">PG 1st Year</option>
+                            <option value="PG 2nd Year">PG 2nd Year</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Additional Info -->
+                <div class="form-section-title" style="margin-top:10px;">
+                    <i class="bi bi-chat-left-text" style="color:#2d6a4f;"></i>
+                    Additional Information (Optional)
+                </div>
+                <div class="mb-4">
+                    <label class="form-label">Anything you'd like to mention?</label>
+                    <textarea name="additionalInfo" class="form-control" rows="3"
+                              placeholder="e.g. team name, dietary needs, skill level..."></textarea>
+                    <div class="form-hint">Leave blank if nothing to add.</div>
+                </div>
+
+                <!-- Terms -->
+                <div class="mb-4" style="background:#f8f9fa;border-radius:10px;padding:14px 16px;">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox"
+                               id="agreeTerms" required>
+                        <label class="form-check-label" for="agreeTerms"
+                               style="font-size:13px;color:#666;">
+                            I confirm that the details provided are accurate.
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="d-flex align-items-center">
+                    <a th:href="@{/student/events/{id}(id=${event.id})}"
+                       class="btn-back">
+                        <i class="bi bi-arrow-left me-1"></i>Back
+                    </a>
+                    <button type="submit" class="btn-submit">
+                        <i class="bi bi-check-circle me-2"></i>Confirm Registration
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

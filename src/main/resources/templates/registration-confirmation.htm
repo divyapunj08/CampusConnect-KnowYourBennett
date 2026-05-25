@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Confirmed — CampusConnect</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:#f4f6fb; font-family:'Segoe UI',sans-serif; }
+        .navbar { background:linear-gradient(90deg,#1a1a2e,#16213e); padding:12px 30px; }
+        .navbar-brand { color:#fff!important; font-weight:800; font-size:22px; }
+        .navbar-brand span { color:#e94560; }
+        .nav-link { color:rgba(255,255,255,.85)!important; }
+        .wrapper { max-width:680px; margin:50px auto; padding:0 15px 60px; }
+        .success-header { text-align:center; margin-bottom:30px; }
+        .success-icon { width:90px; height:90px; background:linear-gradient(135deg,#28a745,#1e7e34); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; }
+        .success-icon i { font-size:44px; color:#fff; }
+        .success-title { font-size:26px; font-weight:800; color:#1a1a2e; margin-bottom:8px; }
+        .success-sub { color:#888; font-size:15px; }
+        .ticket { background:#fff; border-radius:20px; box-shadow:0 8px 30px rgba(0,0,0,.1); overflow:hidden; margin-bottom:25px; }
+        .ticket-header { background:linear-gradient(135deg,#1a1a2e,#0f3460); color:#fff; padding:25px 30px; }
+        .ticket-header .event-title { font-size:20px; font-weight:800; margin-bottom:8px; }
+        .ticket-header .event-meta { display:flex; gap:18px; flex-wrap:wrap; font-size:13px; opacity:.85; }
+        .ticket-header .event-meta span { display:flex; align-items:center; gap:6px; }
+        .ticket-body { padding:25px 30px; }
+        .info-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+        .info-item { background:#f8f9fa; border-radius:10px; padding:12px 15px; }
+        .info-label { font-size:11px; color:#aaa; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px; }
+        .info-value { font-size:14px; font-weight:600; color:#1a1a2e; }
+        .ticket-footer { background:#f8f9fa; padding:18px 30px; display:flex; justify-content:space-between; align-items:center; }
+        .status-badge { background:#d1e7dd; color:#0f5132; padding:6px 16px; border-radius:20px; font-weight:700; font-size:13px; display:flex; align-items:center; gap:6px; }
+        .reg-id { font-size:12px; color:#aaa; }
+        .action-btn { padding:12px 25px; border-radius:10px; font-weight:600; font-size:14px; text-decoration:none; display:inline-block; transition:all .3s; margin:5px; }
+        .btn-primary-cc { background:#e94560; color:#fff; }
+        .btn-primary-cc:hover { background:#0f3460; color:#fff; }
+        .btn-secondary-cc { background:#fff; color:#1a1a2e; border:2px solid #e0e0e0; }
+        .btn-secondary-cc:hover { background:#f0f0f0; color:#1a1a2e; }
+        @keyframes slideIn {
+            from { transform:translateX(120%); opacity:0; }
+            to { transform:translateX(0); opacity:1; }
+        }
+        @keyframes slideOut {
+            from { transform:translateX(0); opacity:1; }
+            to { transform:translateX(120%); opacity:0; }
+        }
+        @media print {
+            .no-print { display:none !important; }
+            body { background:#fff; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Success Toast -->
+<div th:if="${successMessage}"
+     id="successToast"
+     style="position:fixed;top:80px;right:20px;z-index:9999;
+            background:linear-gradient(135deg,#28a745,#1e7e34);
+            color:#fff;padding:16px 22px;border-radius:14px;
+            font-weight:600;font-size:14px;
+            box-shadow:0 10px 40px rgba(0,0,0,.2);
+            display:flex;align-items:center;gap:12px;
+            min-width:320px;animation:slideIn .4s ease forwards;">
+    <i class="bi bi-check-circle-fill" style="font-size:22px;flex-shrink:0;"></i>
+    <span th:text="${successMessage}">Registered!</span>
+    <button onclick="closeToast()"
+            style="background:none;border:none;color:#fff;
+                   margin-left:auto;cursor:pointer;font-size:20px;">
+        &times;
+    </button>
+</div>
+
+<!-- Navbar -->
+<nav class="navbar no-print">
+    <div class="container">
+        <a class="navbar-brand">
+            <i class="bi bi-mortarboard-fill me-2"></i>Campus<span>Connect</span>
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" th:href="@{/student/dashboard}">
+                <i class="bi bi-house"></i> Home
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="container wrapper">
+
+    <!-- Success Header -->
+    <div class="success-header">
+        <div class="success-icon">
+            <i class="bi bi-check-lg"></i>
+        </div>
+        <div class="success-title">Registration Confirmed!</div>
+        <div class="success-sub">You are all set! Here are your registration details.</div>
+    </div>
+
+    <!-- Ticket -->
+    <div class="ticket">
+        <div class="ticket-header">
+            <div class="event-title" th:text="${event.title}">Event Title</div>
+            <div class="event-meta">
+                <span><i class="bi bi-calendar3"></i>
+                    <span th:text="${event.date}">Date</span>
+                </span>
+                <span><i class="bi bi-clock"></i>
+                    <span th:text="${event.time}">Time</span>
+                </span>
+                <span><i class="bi bi-geo-alt"></i>
+                    <span th:text="${event.venue}">Venue</span>
+                </span>
+                <span th:if="${event.category != null}">
+                    <i class="bi bi-tag"></i>
+                    <span th:text="${event.category}">Category</span>
+                </span>
+            </div>
+        </div>
+
+        <!-- Dashed divider -->
+        <div style="border-top:2px dashed #e0e0e0;margin:0;position:relative;height:1px;">
+            <div style="width:24px;height:24px;background:#f4f6fb;border-radius:50%;position:absolute;top:-12px;left:-12px;"></div>
+            <div style="width:24px;height:24px;background:#f4f6fb;border-radius:50%;position:absolute;top:-12px;right:-12px;"></div>
+        </div>
+
+        <!-- Ticket Body -->
+        <div class="ticket-body">
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Full Name</div>
+                    <div class="info-value" th:text="${registration.fullName}">Name</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Enrollment No.</div>
+                    <div class="info-value" th:text="${registration.enrollment}">E22XXX</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Email</div>
+                    <div class="info-value" style="font-size:12px;"
+                         th:text="${registration.email}">email</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Phone</div>
+                    <div class="info-value"
+                         th:text="${registration.phoneNumber}">Phone</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Department</div>
+                    <div class="info-value"
+                         th:text="${registration.department}">Dept</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Year of Study</div>
+                    <div class="info-value"
+                         th:text="${registration.yearOfStudy}">Year</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Registered At</div>
+                    <div class="info-value" style="font-size:12px;"
+                         th:text="${registration.registeredAt}">Time</div>
+                </div>
+                <div class="info-item"
+                     th:if="${registration.additionalInfo != null
+                             and registration.additionalInfo != ''}">
+                    <div class="info-label">Additional Info</div>
+                    <div class="info-value" style="font-size:12px;"
+                         th:text="${registration.additionalInfo}">Info</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ticket Footer -->
+        <div class="ticket-footer">
+            <div class="status-badge">
+                <i class="bi bi-check-circle-fill"></i> CONFIRMED
+            </div>
+            <div class="reg-id">
+                Registration ID: #<span th:text="${registration.id}">0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div style="text-align:center;" class="no-print">
+        <a th:href="@{/student/my-registrations}"
+           class="action-btn btn-primary-cc">
+            <i class="bi bi-bookmark-check me-2"></i>My Registrations
+        </a>
+        <a th:href="@{/student/events}"
+           class="action-btn btn-secondary-cc">
+            <i class="bi bi-calendar-event me-2"></i>Browse More Events
+        </a>
+        <a href="javascript:window.print()"
+           class="action-btn btn-secondary-cc">
+            <i class="bi bi-printer me-2"></i>Print Confirmation
+        </a>
+        <a th:href="@{/student/dashboard}"
+           class="action-btn btn-secondary-cc">
+            <i class="bi bi-house me-2"></i>Dashboard
+        </a>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function closeToast() {
+        const t = document.getElementById('successToast');
+        if (t) {
+            t.style.animation = 'slideOut .4s ease forwards';
+            setTimeout(() => t.remove(), 400);
+        }
+    }
+
+    // Auto dismiss after 5 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+        const t = document.getElementById('successToast');
+        if (t) {
+            setTimeout(() => closeToast(), 5000);
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusConnect - Event Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #f4f6fb; font-family: 'Segoe UI', sans-serif; }
+
+        .navbar {
+            background: linear-gradient(90deg, #1a1a2e, #16213e);
+            padding: 12px 30px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+        }
+        .navbar-brand { color: white !important; font-weight: 800; font-size: 22px; }
+        .navbar-brand span { color: #e94560; }
+        .nav-link { color: rgba(255,255,255,0.85) !important; font-weight: 500; padding: 8px 16px !important; border-radius: 8px; transition: all 0.3s; }
+        .nav-link:hover { background: rgba(233,69,96,0.2); color: #e94560 !important; }
+
+        .event-hero {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: white;
+            padding: 60px 0 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        .event-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: rgba(233,69,96,0.1);
+            border-radius: 50%;
+        }
+        .hero-content { position: relative; z-index: 2; }
+        .category-badge {
+            padding: 6px 18px;
+            border-radius: 25px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        .badge-fest { background: rgba(233,69,96,0.3); border: 1px solid #e94560; color: #fff; }
+        .badge-sports { background: rgba(45,106,79,0.3); border: 1px solid #52b788; color: #fff; }
+        .badge-seminar { background: rgba(123,45,139,0.3); border: 1px solid #c77dff; color: #fff; }
+        .badge-workshop { background: rgba(247,127,0,0.3); border: 1px solid #faa307; color: #fff; }
+        .badge-cultural { background: rgba(233,69,96,0.3); border: 1px solid #e94560; color: #fff; }
+        .badge-competition { background: rgba(67,97,238,0.3); border: 1px solid #4361ee; color: #fff; }
+        .badge-default { background: rgba(67,97,238,0.3); border: 1px solid #4361ee; color: #fff; }
+
+        .event-hero h1 { font-size: 38px; font-weight: 800; line-height: 1.2; margin-bottom: 15px; }
+        .event-hero .lead { font-size: 15px; opacity: 0.8; max-width: 700px; line-height: 1.8; }
+
+        .detail-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+        .detail-card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .detail-card-title i { color: #e94560; font-size: 20px; }
+
+        .detail-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 14px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        .detail-item:last-child { border-bottom: none; }
+        .detail-icon {
+            width: 42px;
+            height: 42px;
+            background: #fff0f3;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .detail-icon i { color: #e94560; font-size: 18px; }
+        .detail-label { font-size: 12px; color: #aaa; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .detail-value { font-size: 15px; font-weight: 600; color: #1a1a2e; margin-top: 2px; }
+
+        .register-card {
+            background: linear-gradient(135deg, #1a1a2e, #0f3460);
+            border-radius: 20px;
+            padding: 35px;
+            color: white;
+            position: sticky;
+            top: 20px;
+        }
+        .register-card h4 { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+        .register-card p { font-size: 14px; opacity: 0.8; margin-bottom: 25px; }
+        .btn-register-main {
+            background: #e94560;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-register-main:hover { background: white; color: #e94560; }
+        .register-info-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            opacity: 0.9;
+        }
+        .register-info-item:last-child { border-bottom: none; }
+        .register-info-item i { color: #e94560; width: 20px; }
+
+        .alert-already {
+            background: #fff3cd;
+            border: none;
+            border-radius: 12px;
+            padding: 15px 20px;
+            font-weight: 600;
+            color: #856404;
+        }
+        .alert-success-custom {
+            background: #d1e7dd;
+            border: none;
+            border-radius: 12px;
+            padding: 15px 20px;
+            font-weight: 600;
+            color: #0f5132;
+        }
+
+        .btn-back {
+            background: white;
+            color: #1a1a2e;
+            border: 2px solid #e0e0e0;
+            padding: 10px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+        .btn-back:hover { background: #e94560; color: white; border-color: #e94560; }
+
+        .highlight-tag {
+            background: #fff0f3;
+            color: #e94560;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-block;
+            margin: 4px;
+        }
+
+        .footer {
+            background: #1a1a2e;
+            color: rgba(255,255,255,0.7);
+            padding: 25px 0;
+            text-align: center;
+            font-size: 14px;
+            margin-top: 50px;
+        }
+        .footer span { color: #e94560; }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand"><i class="bi bi-mortarboard-fill me-2"></i>Campus<span>Connect</span></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNav" style="border-color:rgba(255,255,255,0.3)">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" th:href="@{/student/dashboard}"><i class="bi bi-house"></i> Home</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/student/events}"><i class="bi bi-calendar-event"></i> Events</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/student/club-events}"><i class="bi bi-people-fill"></i> Club Events</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/student/my-registrations}"><i class="bi bi-bookmark-check"></i> My Registrations</a></li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/student/profile}">
+                        <i class="bi bi-person-circle"></i> Profile
+                    </a>
+                </li>
+                <li class="nav-item ms-2">
+                    <a class="nav-link" th:href="@{/logout}" style="background:#e94560;color:white!important;border-radius:8px;">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Event Hero -->
+<div class="event-hero">
+    <div class="container hero-content">
+        <span class="category-badge"
+              th:classappend="${event.category == 'Fest'} ? 'badge-fest' :
+                             (${event.category == 'Sports'} ? 'badge-sports' :
+                             (${event.category == 'Workshop'} ? 'badge-workshop' :
+                             (${event.category == 'Seminar'} ? 'badge-seminar' :
+                             (${event.category == 'Cultural'} ? 'badge-cultural' :
+                             (${event.category == 'Competition'} ? 'badge-competition' : 'badge-default')))))"
+              th:text="${event.category}">Category</span>
+        <h1 th:text="${event.title}">Event Title</h1>
+        <p class="lead" th:text="${event.description}">Description</p>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <!-- Alerts -->
+    <div th:if="${param.error}" class="alert-already mb-4">
+        ⚠️ You are already registered for this event!
+    </div>
+    <div th:if="${param.success}" class="alert-success-custom mb-4">
+        ✅ Successfully registered! See you at the event!
+    </div>
+
+    <div class="row">
+        <!-- Left: Event Details -->
+        <div class="col-lg-8">
+
+            <!-- Key Details -->
+            <div class="detail-card">
+                <div class="detail-card-title">
+                    <i class="bi bi-info-circle"></i> Event Details
+                </div>
+                <div class="detail-item">
+                    <div class="detail-icon"><i class="bi bi-calendar3"></i></div>
+                    <div>
+                        <div class="detail-label">Date</div>
+                        <div class="detail-value" th:text="${event.date}">Date</div>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-icon"><i class="bi bi-clock"></i></div>
+                    <div>
+                        <div class="detail-label">Time</div>
+                        <div class="detail-value" th:text="${event.time}">Time</div>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-icon"><i class="bi bi-geo-alt"></i></div>
+                    <div>
+                        <div class="detail-label">Venue</div>
+                        <div class="detail-value" th:text="${event.venue}">Venue</div>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-icon"><i class="bi bi-people"></i></div>
+                    <div>
+                        <div class="detail-label">Seats Available</div>
+                        <div class="detail-value"
+                             th:text="${event.maxParticipants > 0 ? event.maxParticipants + ' total seats' : 'Unlimited'}">
+                            100
+                        </div>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-icon"><i class="bi bi-tag"></i></div>
+                    <div>
+                        <div class="detail-label">Category</div>
+                        <div class="detail-value" th:text="${event.category}">Category</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Highlights -->
+            <div class="detail-card">
+                <div class="detail-card-title">
+                    <i class="bi bi-star"></i> Event Highlights
+                </div>
+                <!-- Uphoria highlights -->
+                <div th:if="${event.category == 'Fest'}">
+                    <div class="mb-3">
+                        <span class="highlight-tag">🎭 60+ Events</span>
+                        <span class="highlight-tag">🎵 Artist Night</span>
+                        <span class="highlight-tag">💃 Pro Night</span>
+                        <span class="highlight-tag">💗 Prom Night</span>
+                        <span class="highlight-tag">👑 Mr & Ms Uphoria</span>
+                        <span class="highlight-tag">🎨 Graffiti Groove</span>
+                        <span class="highlight-tag">📸 Picture Perfect</span>
+                        <span class="highlight-tag">🎮 FIFA Showdown</span>
+                        <span class="highlight-tag">🎤 DJ Night</span>
+                        <span class="highlight-tag">👗 Fashion Show</span>
+                        <span class="highlight-tag">35,000+ Footfall</span>
+                    </div>
+                </div>
+                <!-- Sports highlights -->
+                <div th:if="${event.category == 'Sports'}">
+                    <div class="mb-3">
+                        <span class="highlight-tag">⚽ Football</span>
+                        <span class="highlight-tag">🏀 Basketball</span>
+                        <span class="highlight-tag">🏏 Cricket</span>
+                        <span class="highlight-tag">🏊 Swimming</span>
+                        <span class="highlight-tag">🏸 Badminton</span>
+                        <span class="highlight-tag">🎾 Tennis</span>
+                        <span class="highlight-tag">♟️ Chess</span>
+                        <span class="highlight-tag">🥋 Taekwondo</span>
+                        <span class="highlight-tag">🏐 Volleyball</span>
+                        <span class="highlight-tag">🎱 Table Tennis</span>
+                        <span class="highlight-tag">💡 Neon DJ Night</span>
+                        <span class="highlight-tag">😂 Comedy Night</span>
+                        <span class="highlight-tag">🔥 Bonfire</span>
+                        <span class="highlight-tag">₹11 Lakh Prize Pool</span>
+                        <span class="highlight-tag">100+ Universities</span>
+                    </div>
+                </div>
+                <!-- Seminar highlights -->
+                <div th:if="${event.category == 'Seminar'}">
+                    <div class="mb-3">
+                        <span class="highlight-tag">🎤 Panel Discussions</span>
+                        <span class="highlight-tag">💡 Fireside Chats</span>
+                        <span class="highlight-tag">🏆 Competitions</span>
+                        <span class="highlight-tag">🤝 Networking</span>
+                        <span class="highlight-tag">📜 Certificate</span>
+                        <span class="highlight-tag">🌟 Industry Experts</span>
+                    </div>
+                </div>
+                <!-- Workshop highlights -->
+                <div th:if="${event.category == 'Workshop'}">
+                    <div class="mb-3">
+                        <span class="highlight-tag">💻 Hands-on Learning</span>
+                        <span class="highlight-tag">📜 Certificate</span>
+                        <span class="highlight-tag">👨‍💻 Industry Mentors</span>
+                        <span class="highlight-tag">🚀 Real Projects</span>
+                        <span class="highlight-tag">🎯 Practical Skills</span>
+                    </div>
+                </div>
+                <!-- Cultural highlights -->
+                <div th:if="${event.category == 'Cultural'}">
+                    <div class="mb-3">
+                        <span class="highlight-tag">🎭 Performances</span>
+                        <span class="highlight-tag">🎨 Art Exhibition</span>
+                        <span class="highlight-tag">✍️ Creative Writing</span>
+                        <span class="highlight-tag">🎤 Open Mic</span>
+                        <span class="highlight-tag">🏆 Competitions</span>
+                    </div>
+                </div>
+                <!-- Competition highlights -->
+                <div th:if="${event.category == 'Competition'}">
+                    <div class="mb-3">
+                        <span class="highlight-tag">💻 Coding Challenges</span>
+                        <span class="highlight-tag">🏆 Cash Prizes</span>
+                        <span class="highlight-tag">📜 Certificates</span>
+                        <span class="highlight-tag">⏱️ Time Pressure</span>
+                        <span class="highlight-tag">🥇 Trophy</span>
+                    </div>
+                </div>
+
+                <p class="text-muted mt-3" style="font-size:14px; line-height:1.8;"
+                   th:text="${event.description}">Full description here</p>
+            </div>
+
+            <!-- Back Button -->
+            <a th:href="@{/student/events}" class="btn-back mb-5">
+                ← Back to All Events
+            </a>
+        </div>
+
+        <!-- Right: Register Card -->
+        <div class="col-lg-4">
+            <div class="register-card">
+                <h4>Register for this Event</h4>
+                <p>Secure your spot now before seats fill up!</p>
+                <!-- Seat info -->
+                <div th:if="${event.maxParticipants > 0}"
+                     style="background:rgba(233,69,96,.15);border-radius:10px;padding:12px;margin-bottom:15px;text-align:center;">
+                    <div style="font-size:13px;font-weight:700;color:#e94560;">
+                        🎯 <span th:text="${event.maxParticipants}">100</span> Total Seats
+                    </div>
+                    <div style="font-size:12px;opacity:.8;margin-top:3px;">Register quickly before seats fill up!</div>
+                </div>
+                <div th:if="${event.maxParticipants == 0}"
+                     style="background:rgba(40,167,69,.15);border-radius:10px;padding:12px;margin-bottom:15px;text-align:center;">
+                    <div style="font-size:13px;font-weight:700;color:#28a745;">
+                        ✅ Open Registration — No seat limit
+                    </div>
+                </div>
+                <div class="register-info-item">
+                    <i class="bi bi-calendar3"></i>
+                    <span th:text="${event.date}">Date</span>
+                </div>
+                <div class="register-info-item">
+                    <i class="bi bi-clock"></i>
+                    <span th:text="${event.time}">Time</span>
+                </div>
+                <div class="register-info-item">
+                    <i class="bi bi-geo-alt"></i>
+                    <span th:text="${event.venue}">Venue</span>
+                </div>
+                <div class="register-info-item">
+                    <i class="bi bi-people"></i>
+                    <span th:text="${event.maxParticipants} + ' spots available'">Spots</span>
+                </div>
+
+                <!-- Register Button - goes to form -->
+                <div th:if="${event.registrationUrl != null and event.registrationUrl != ''}">
+                    <a th:href="${event.registrationUrl}" target="_blank"
+                       style="display:block;background:#1a1a2e;color:#fff;text-align:center;padding:12px;border-radius:10px;font-weight:700;text-decoration:none;margin-bottom:10px;">
+                        <i class="bi bi-link-45deg me-2"></i>External Registration
+                    </a>
+                </div>
+                <a th:href="@{/student/events/{id}/register(id=${event.id})}"
+                   style="display:block;background:#e94560;color:#fff;text-align:center;padding:14px;border-radius:10px;font-weight:700;text-decoration:none;font-size:15px;">
+                    <i class="bi bi-pencil-square me-2"></i>Register via CampusConnect
+                </a>
+
+                <div class="text-center mt-3" style="font-size:12px; opacity:0.6;">
+                    Free registration · Bennett University students only
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+    <div class="container">
+        <p>🎓 <strong>CampusConnect</strong> — Bennett University Event Management System · Session 2025-26</p>
+        <p style="margin-top:5px;">Made with <span>❤️</span> by Team SqlChamps</p>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

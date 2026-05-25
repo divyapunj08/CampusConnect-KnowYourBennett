@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>CampusConnect - Add Announcement</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background:#f4f6fb; font-family:'Segoe UI',sans-serif; }
+        .navbar { background:linear-gradient(90deg,#1a1a2e,#16213e); padding:12px 30px; }
+        .navbar-brand { color:#fff!important; font-weight:800; font-size:22px; }
+        .navbar-brand span { color:#e94560; }
+        .nav-link { color:rgba(255,255,255,.85)!important; font-weight:500; padding:8px 16px!important; border-radius:8px; }
+        .form-card { background:#fff; border-radius:20px; padding:40px; box-shadow:0 5px 25px rgba(0,0,0,.08); max-width:700px; margin:40px auto; }
+        .form-control, .form-select { border-radius:10px; padding:12px; border:1.5px solid #dee2e6; }
+        .form-control:focus, .form-select:focus { border-color:#0f3460; box-shadow:none; }
+        .btn-save { background:#e94560; color:#fff; border:none; padding:12px 40px; border-radius:10px; font-weight:700; font-size:15px; }
+        .btn-save:hover { background:#0f3460; color:#fff; }
+        .btn-cancel { background:#f0f2f5; color:#1a1a2e; border:none; padding:12px 40px; border-radius:10px; font-weight:600; text-decoration:none; display:inline-block; }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <div class="container">
+        <a class="navbar-brand"><i class="bi bi-mortarboard-fill me-2"></i>Campus<span>Connect</span></a>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="form-card">
+        <h4 style="font-weight:800;color:#1a1a2e;margin-bottom:25px;">
+            <span th:if="${announcement.id == null}">➕ Add Announcement</span>
+            <span th:if="${announcement.id != null}">✏️ Edit Announcement</span>
+        </h4>
+
+        <form th:action="@{/admin/announcements/save}"
+              th:object="${announcement}" method="post">
+            <input type="hidden" th:field="*{id}"/>
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Title</label>
+                <input type="text" th:field="*{title}"
+                       class="form-control"
+                       placeholder="e.g. Uphoria 2026 Registrations Open!"
+                       required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Description</label>
+                <textarea th:field="*{description}"
+                          class="form-control" rows="4"
+                          placeholder="Write the announcement details..."></textarea>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-semibold">Date</label>
+                    <input type="date" th:field="*{announcementDate}"
+                           class="form-control" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-semibold">Category</label>
+                    <select th:field="*{category}" class="form-select">
+                        <option value="NEWS">📰 News</option>
+                        <option value="ALERT">🔔 Alert</option>
+                        <option value="EVENT">📅 Event Update</option>
+                        <option value="GENERAL">📢 General</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <div class="form-check">
+                    <input type="checkbox" th:field="*{active}"
+                           class="form-check-input" id="activeCheck">
+                    <label class="form-check-label fw-semibold"
+                           for="activeCheck">
+                        Show on dashboard (Active)
+                    </label>
+                </div>
+            </div>
+
+            <div class="d-flex gap-3">
+                <button type="submit" class="btn-save">Save Announcement</button>
+                <a th:href="@{/admin/announcements}" class="btn-cancel">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

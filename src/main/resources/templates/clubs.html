@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusConnect - Clubs & Societies</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:#f4f6fb; font-family:'Segoe UI',sans-serif; }
+        .navbar { background:linear-gradient(90deg,#1a1a2e,#16213e); padding:12px 30px; box-shadow:0 2px 20px rgba(0,0,0,.3); }
+        .navbar-brand { color:#fff!important; font-weight:800; font-size:22px; }
+        .navbar-brand span { color:#e94560; }
+        .nav-link { color:rgba(255,255,255,.85)!important; font-weight:500; padding:8px 16px!important; border-radius:8px; transition:all .3s; }
+        .nav-link:hover { background:rgba(233,69,96,.2); color:#e94560!important; }
+
+        .page-hero { background:linear-gradient(135deg,#1a1a2e,#0f3460); color:#fff; padding:60px 0 40px; }
+        .page-hero h1 { font-size:36px; font-weight:800; }
+        .page-hero p { opacity:.8; font-size:15px; margin-top:10px; }
+
+        .section-line { width:50px; height:4px; background:#e94560; border-radius:2px; margin-bottom:10px; }
+        .section-title { font-size:22px; font-weight:800; color:#1a1a2e; margin-bottom:5px; }
+        .section-sub { color:#888; font-size:14px; margin-bottom:25px; }
+
+        /* Club Detail Card */
+        .club-detail-card { background:#fff; border-radius:20px; padding:30px; box-shadow:0 5px 25px rgba(0,0,0,.08); margin-bottom:25px; transition:all .3s; border-top:4px solid #e94560; }
+        .club-detail-card.tech { border-top-color:#4361ee; }
+        .club-detail-card:hover { transform:translateY(-3px); box-shadow:0 10px 35px rgba(0,0,0,.12); }
+        .club-header { display:flex; align-items:center; gap:20px; margin-bottom:20px; }
+        .club-emoji { font-size:48px; width:80px; height:80px; background:#f8f9fa; border-radius:16px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .club-header-info h3 { font-size:20px; font-weight:800; color:#1a1a2e; margin-bottom:4px; }
+        .club-header-info .club-type { font-size:12px; color:#e94560; font-weight:700; text-transform:uppercase; letter-spacing:1px; }
+        .club-header-info .club-type.tech { color:#4361ee; }
+        .club-about { font-size:14px; color:#666; line-height:1.7; margin-bottom:20px; }
+
+        /* Events within club */
+        .club-events-title { font-size:15px; font-weight:700; color:#1a1a2e; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid #f0f0f0; }
+        .mini-event { background:#f8f9fa; border-radius:10px; padding:12px 15px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; }
+        .mini-event-name { font-size:13px; font-weight:600; color:#1a1a2e; }
+        .mini-event-date { font-size:11px; color:#888; margin-top:2px; }
+        .badge-past { background:#f0f0f0; color:#666; padding:3px 10px; border-radius:10px; font-size:11px; font-weight:700; }
+        .badge-upcoming { background:#e8f5e9; color:#2d6a4f; padding:3px 10px; border-radius:10px; font-size:11px; font-weight:700; }
+        .badge-live { background:#fff3e0; color:#e65100; padding:3px 10px; border-radius:10px; font-size:11px; font-weight:700; }
+
+        .btn-insta { background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045); color:#fff; border:none; padding:8px 18px; border-radius:8px; font-weight:600; font-size:12px; text-decoration:none; transition:all .3s; display:inline-block; }
+        .btn-insta:hover { opacity:.85; color:#fff; }
+        .btn-register-small { background:#e94560; color:#fff; border:none; padding:8px 18px; border-radius:8px; font-weight:600; font-size:12px; text-decoration:none; transition:all .3s; display:inline-block; margin-left:8px; }
+        .btn-register-small:hover { background:#0f3460; color:#fff; }
+        .btn-register-small.tech { background:#4361ee; }
+        .btn-register-small.tech:hover { background:#1a1a2e; }
+
+        /* Tab Buttons */
+        .tab-bar { background:#fff; padding:5px; border-radius:12px; box-shadow:0 3px 15px rgba(0,0,0,.08); display:inline-flex; gap:5px; margin-bottom:30px; }
+        .tab-btn { padding:10px 25px; border-radius:8px; border:none; font-weight:700; font-size:14px; cursor:pointer; transition:all .3s; background:transparent; color:#888; }
+        .tab-btn.active { background:#e94560; color:#fff; }
+        .tab-btn.tech-active { background:#4361ee; color:#fff; }
+
+        /* Hackaccino Special */
+        .hackaccino-banner { background:linear-gradient(135deg,#1a1a2e,#4361ee); border-radius:20px; padding:35px; color:#fff; margin-bottom:30px; position:relative; overflow:hidden; }
+        .hackaccino-banner::before { content:''; position:absolute; top:-30%; right:-5%; width:300px; height:300px; background:rgba(233,69,96,.15); border-radius:50%; }
+        .hackaccino-title { font-size:32px; font-weight:800; margin-bottom:5px; }
+        .hackaccino-sub { opacity:.8; font-size:15px; margin-bottom:20px; }
+        .hackaccino-stat { background:rgba(255,255,255,.15); border-radius:10px; padding:10px 18px; display:inline-block; margin-right:10px; margin-bottom:10px; font-size:13px; font-weight:600; }
+        .btn-hackaccino { background:#e94560; color:#fff; padding:12px 30px; border-radius:10px; font-weight:700; font-size:15px; text-decoration:none; display:inline-block; transition:all .3s; }
+        .btn-hackaccino:hover { background:#fff; color:#e94560; }
+
+        .footer { background:#1a1a2e; color:rgba(255,255,255,.7); padding:25px 0; text-align:center; font-size:14px; margin-top:50px; }
+        .footer span { color:#e94560; }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand"><i class="bi bi-mortarboard-fill me-2"></i>Campus<span>Connect</span></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" style="border-color:rgba(255,255,255,.3)">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="nav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" th:href="@{/student/dashboard}"><i class="bi bi-house"></i> Home</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/student/events}"><i class="bi bi-calendar-event"></i> Events</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/student/club-events}"><i class="bi bi-people-fill"></i> Club Events</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/clubs}"><i class="bi bi-people"></i> Clubs</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/about}"><i class="bi bi-info-circle"></i> About</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/student/my-registrations}"><i class="bi bi-bookmark-check"></i> My Registrations</a></li>
+                <!-- Search Bar -->
+                <li class="nav-item me-2">
+                    <form th:action="@{/search}" method="get" class="d-flex">
+                        <div style="position:relative;">
+                            <input type="text" name="query"
+                                   placeholder="Search events..."
+                                   style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:white;padding:8px 40px 8px 15px;border-radius:25px;font-size:13px;width:200px;outline:none;"
+                                   onfocus="this.style.background='rgba(255,255,255,.25)'"
+                                   onblur="this.style.background='rgba(255,255,255,.15)'">
+                            <button type="submit"
+                                    style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:white;cursor:pointer;padding:0;">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/student/profile}">
+                        <i class="bi bi-person-circle"></i> Profile
+                    </a>
+                </li>
+                <li class="nav-item ms-2"><a class="nav-link" th:href="@{/logout}" style="background:#e94560;color:white!important;border-radius:8px;"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero -->
+<div class="page-hero">
+    <div class="container">
+        <h1>🏛️ Clubs & Societies</h1>
+        <p>Bennett University has 40+ student-run clubs — explore, join and participate in their events!</p>
+    </div>
+</div>
+
+<div class="container mt-5">
+
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+        <button class="tab-btn active" onclick="showSection('cultural',this)">🎭 Cultural Clubs</button>
+        <button class="tab-btn" onclick="showSection('tech',this)">💻 Tech Clubs</button>
+    </div>
+
+    <!-- ═══ CULTURAL CLUBS ═══ -->
+    <div id="cultural-section">
+        <div class="section-line"></div>
+        <div class="section-title">🎭 Cultural Clubs</div>
+        <div class="section-sub">Bennett University's vibrant cultural societies — performances, arts, media and more</div>
+        <div class="row">
+
+            <!-- Ansh -->
+            <div class="col-lg-6 mb-4">
+                <div class="club-detail-card">
+                    <div class="club-header">
+                        <div class="club-emoji">🎭</div>
+                        <div class="club-header-info">
+                            <h3>Ansh — Theatre Society</h3>
+                            <div class="club-type">Cultural Club</div>
+                        </div>
+                    </div>
+                    <div class="club-about">Bennett University's official theatre society. Ansh performs at major university events including Deeksharambh, Uphoria and Aalekh. They stage original plays, skits and street theatre performances, bringing stories to life on campus.</div>
+                    <div class="club-events-title">📅 Events 2025-26</div>
+                    <div class="mini-event"><div><div class="mini-event-name">Theatre Performance — Deeksharambh 2025</div><div class="mini-event-date">Aug 2025 · Main Auditorium</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Street Play at Uphoria 2026</div><div class="mini-event-date">Feb 13, 2026 · OAT</div></div><span class="badge-past">Past</span></div>
+                    <!-- Dynamic events from database -->
+                    <div th:each="event : ${allEvents}" th:if="${event.clubName == 'Ansh'}">
+                        <div class="mini-event" style="border-left:3px solid #e94560;">
+                            <div>
+                                <div class="mini-event-name" th:text="${event.title}">Event</div>
+                                <div class="mini-event-date"><span th:text="${event.date}">Date</span> · <span th:text="${event.venue}">Venue</span></div>
+                            </div>
+                            <a th:href="@{/student/events/{id}(id=${event.id})}"
+                               class="badge-upcoming" style="text-decoration:none;white-space:nowrap;">View & Register →</a>
+                        </div>
+                    </div>
+                    <div style="margin-top:15px;">
+                        <a href="https://www.instagram.com/ansh.bu" target="_blank" class="btn-insta"><i class="bi bi-instagram"></i> @ansh.bu</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Verve -->
+            <div class="col-lg-6 mb-4">
+                <div class="club-detail-card">
+                    <div class="club-header">
+                        <div class="club-emoji">💃</div>
+                        <div class="club-header-info">
+                            <h3>Verve — Dance Society</h3>
+                            <div class="club-type">Cultural Club</div>
+                        </div>
+                    </div>
+                    <div class="club-about">Verve is Bennett University's premier contemporary and western dance society. Known for high-energy performances at Uphoria and Deeksharambh, Verve performs fusion dance styles blending western and modern forms with unmatched energy.</div>
+                    <div class="club-events-title">📅 Events 2025-26</div>
+                    <div class="mini-event"><div><div class="mini-event-name">Fusion Dance — Deeksharambh 2025</div><div class="mini-event-date">Aug 2025 · Main Auditorium</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Nrityakala — Uphoria 2026</div><div class="mini-event-date">Feb 13-15, 2026 · Main Stage</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Dance Workshop for Freshers</div><div class="mini-event-date">Apr 2026 · Dance Studio</div></div><span class="badge-upcoming">Upcoming</span></div>
+                    <!-- Dynamic events from database -->
+                    <div th:each="event : ${allEvents}" th:if="${event.clubName == 'Verve'}">
+                        <div class="mini-event" style="border-left:3px solid #e94560;">
+                            <div>
+                                <div class="mini-event-name" th:text="${event.title}">Event</div>
+                                <div class="mini-event-date"><span th:text="${event.date}">Date</span> · <span th:text="${event.venue}">Venue</span></div>
+                            </div>
+                            <a th:href="@{/student/events/{id}(id=${event.id})}"
+                               class="badge-upcoming" style="text-decoration:none;white-space:nowrap;">View & Register →</a>
+                        </div>
+                    </div>
+                    <div style="margin-top:15px;">
+                        <a href="https://www.instagram.com/verve_bu" target="_blank" class="btn-insta"><i class="bi bi-instagram"></i> @ansh.bu</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advaita -->
+            <div class="col-lg-6 mb-4">
+                <div class="club-detail-card">
+                    <div class="club-header">
+                        <div class="club-emoji">🎵</div>
+                        <div class="club-header-info">
+                            <h3>Advaita — Music Society</h3>
+                            <div class="club-type">Cultural Club</div>
+                        </div>
+                    </div>
+                    <div class="club-about">Advaita is Bennett University's official music society. They perform at all major events including Deeksharambh, Uphoria and college fests. Advaita covers a wide range of genres from Indian classical to western pop and rock.</div>
+                    <div class="club-events-title">📅 Events 2025-26</div>
+                    <div class="mini-event"><div><div class="mini-event-name">Live Performance — Deeksharambh 2025</div><div class="mini-event-date">Aug 2025 · Main Auditorium</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Artist Night — Uphoria 2026</div><div class="mini-event-date">Feb 13, 2026 · Main Stage</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">End Semester Music Night</div><div class="mini-event-date">May 2026 · OAT</div></div><span class="badge-upcoming">Upcoming</span></div>
+                    <div style="margin-top:15px;">
+                        <!-- Dynamic events from database -->
+                        <div th:each="event : ${allEvents}" th:if="${event.clubName == 'Advaita'}">
+                            <div class="mini-event" style="border-left:3px solid #e94560;">
+                                <div>
+                                    <div class="mini-event-name" th:text="${event.title}">Event</div>
+                                    <div class="mini-event-date"><span th:text="${event.date}">Date</span> · <span th:text="${event.venue}">Venue</span></div>
+                                </div>
+                                <a th:href="@{/student/events/{id}(id=${event.id})}"
+                                   class="badge-upcoming" style="text-decoration:none;white-space:nowrap;">View & Register →</a>
+                            </div>
+                        </div>
+                        <a href="https://www.instagram.com/advaita.bu" target="_blank" class="btn-insta"><i class="bi bi-instagram"></i> @advaita.bu</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rivaaz -->
+            <div class="col-lg-6 mb-4">
+                <div class="club-detail-card">
+                    <div class="club-header">
+                        <div class="club-emoji">🪘</div>
+                        <div class="club-header-info">
+                            <h3>Rivaaz — Traditional Dance Club</h3>
+                            <div class="club-type">Cultural Club</div>
+                        </div>
+                    </div>
+                    <div class="club-about">Rivaaz is Bennett University's traditional and classical dance club. Specializing in Indian classical dance forms like Bharatanatyam, Kathak and folk dances, Rivaaz preserves and celebrates India's rich dance heritage on campus.</div>
+                    <div class="club-events-title">📅 Events 2025-26</div>
+                    <div class="mini-event"><div><div class="mini-event-name">Classical Dance — Deeksharambh 2025</div><div class="mini-event-date">Aug 2025 · Main Auditorium</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Chandrakala — Classical Solo Battle</div><div class="mini-event-date">Feb 13, 2026 · Activity Stage</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Kala Sangam — Duet Fusion Show</div><div class="mini-event-date">Apr 2026 · OAT</div></div><span class="badge-upcoming">Upcoming</span></div>
+                    <div style="margin-top:15px;">
+                        <!-- Dynamic events from database -->
+                        <div th:each="event : ${allEvents}" th:if="${event.clubName == 'Rivaaz'}">
+                            <div class="mini-event" style="border-left:3px solid #e94560;">
+                                <div>
+                                    <div class="mini-event-name" th:text="${event.title}">Event</div>
+                                    <div class="mini-event-date"><span th:text="${event.date}">Date</span> · <span th:text="${event.venue}">Venue</span></div>
+                                </div>
+                                <a th:href="@{/student/events/{id}(id=${event.id})}"
+                                   class="badge-upcoming" style="text-decoration:none;white-space:nowrap;">View & Register →</a>
+                            </div>
+                        </div>
+                        <a href="https://www.instagram.com/rivaaz_bu" target="_blank" class="btn-insta"><i class="bi bi-instagram"></i> @rivaaz_bu</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cerebrum -->
+            <div class="col-lg-6 mb-4">
+                <div class="club-detail-card">
+                    <div class="club-header">
+                        <div class="club-emoji">📚</div>
+                        <div class="club-header-info">
+                            <h3>Cerebrum — Literary & Debating Society</h3>
+                            <div class="club-type">Cultural Club</div>
+                        </div>
+                    </div>
+                    <div class="club-about">Cerebrum is Bennett University's literary and debating society. They organise poetry slams, open mic nights, creative writing competitions, MUNs and debates. Cerebrum hosted literary events at Aalekh 2026 and Deeksharambh 2025.</div>
+                    <div class="club-events-title">📅 Events 2025-26</div>
+                    <div class="mini-event"><div><div class="mini-event-name">Literary Night — Deeksharambh 2025</div><div class="mini-event-date">Aug 2025 · Main Auditorium</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Aalekh 2026 — Literary Fest</div><div class="mini-event-date">Feb 12, 2026 · OAT</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Open Mic & Poetry Slam Night</div><div class="mini-event-date">Apr 2026 · OAT</div></div><span class="badge-upcoming">Upcoming</span></div>
+                    <div style="margin-top:15px;">
+                        <!-- Dynamic events from database -->
+                        <div th:each="event : ${allEvents}" th:if="${event.clubName == 'Cerebrum'}">
+                            <div class="mini-event" style="border-left:3px solid #e94560;">
+                                <div>
+                                    <div class="mini-event-name" th:text="${event.title}">Event</div>
+                                    <div class="mini-event-date"><span th:text="${event.date}">Date</span> · <span th:text="${event.venue}">Venue</span></div>
+                                </div>
+                                <a th:href="@{/student/events/{id}(id=${event.id})}"
+                                   class="badge-upcoming" style="text-decoration:none;white-space:nowrap;">View & Register →</a>
+                            </div>
+                        </div>
+                        <a href="https://www.instagram.com/cerebrum.bu" target="_blank" class="btn-insta"><i class="bi bi-instagram"></i> @cerebrum.bu</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panache -->
+            <div class="col-lg-6 mb-4">
+                <div class="club-detail-card">
+                    <div class="club-header">
+                        <div class="club-emoji">👗</div>
+                        <div class="club-header-info">
+                            <h3>Panache — Fashion Society</h3>
+                            <div class="club-type">Cultural Club</div>
+                        </div>
+                    </div>
+                    <div class="club-about">Panache is Bennett University's official fashion society. They organise fashion shows, style workshops and themed runway events. Panache performed at Deeksharambh 2025 and organised the spectacular fashion show at Uphoria 2026.</div>
+                    <div class="club-events-title">📅 Events 2025-26</div>
+                    <div class="mini-event"><div><div class="mini-event-name">Fashion Show — Deeksharambh 2025</div><div class="mini-event-date">Aug 2025 · Main Auditorium</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Supernova Fashion Walk — Uphoria 2026</div><div class="mini-event-date">Feb 13, 2026 · Main Stage</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Style & Fashion Workshop</div><div class="mini-event-date">Apr 2026 · Seminar Hall</div></div><span class="badge-upcoming">Upcoming</span></div>
+                    <div style="margin-top:15px;">
+                        <!-- Dynamic events from database -->
+                        <div th:each="event : ${allEvents}" th:if="${event.clubName == 'Panache'}">
+                            <div class="mini-event" style="border-left:3px solid #e94560;">
+                                <div>
+                                    <div class="mini-event-name" th:text="${event.title}">Event</div>
+                                    <div class="mini-event-date"><span th:text="${event.date}">Date</span> · <span th:text="${event.venue}">Venue</span></div>
+                                </div>
+                                <a th:href="@{/student/events/{id}(id=${event.id})}"
+                                   class="badge-upcoming" style="text-decoration:none;white-space:nowrap;">View & Register →</a>
+                            </div>
+                        </div>
+                        <a href="https://www.instagram.com/panache_bu" target="_blank" class="btn-insta"><i class="bi bi-instagram"></i> @panache_bu</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Silhouette -->
+            <div class="col-lg-6 mb-4">
+                <div class="club-detail-card">
+                    <div class="club-header">
+                        <div class="club-emoji">🎨</div>
+                        <div class="club-header-info">
+                            <h3>Silhouette — Art Club</h3>
+                            <div class="club-type">Cultural Club</div>
+                        </div>
+                    </div>
+                    <div class="club-about">Silhouette is Bennett University's art club, bringing visual arts to campus. They organise art exhibitions, painting competitions, graffiti events and workshops. Their Graffiti Groove event at Uphoria 2026 converted walls into vibrant canvases.</div>
+                    <div class="club-events-title">📅 Events 2025-26</div>
+                    <div class="mini-event"><div><div class="mini-event-name">Graffiti Groove — Uphoria 2026</div><div class="mini-event-date">Feb 13-15, 2026 · Campus Walls</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Art Exhibition — Aalekh 2026</div><div class="mini-event-date">Feb 12, 2026 · Gallery Space</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Painting Competition & Workshop</div><div class="mini-event-date">Apr 2026 · Art Studio</div></div><span class="badge-upcoming">Upcoming</span></div>
+                    <div style="margin-top:15px;">
+                        <!-- Dynamic events from database -->
+                        <div th:each="event : ${allEvents}" th:if="${event.clubName == 'Silhouette'}">
+                            <div class="mini-event" style="border-left:3px solid #e94560;">
+                                <div>
+                                    <div class="mini-event-name" th:text="${event.title}">Event</div>
+                                    <div class="mini-event-date"><span th:text="${event.date}">Date</span> · <span th:text="${event.venue}">Venue</span></div>
+                                </div>
+                                <a th:href="@{/student/events/{id}(id=${event.id})}"
+                                   class="badge-upcoming" style="text-decoration:none;white-space:nowrap;">View & Register →</a>
+                            </div>
+                        </div>
+                        <a href="https://www.instagram.com/silhouette_bu" target="_blank" class="btn-insta"><i class="bi bi-instagram"></i> @silhouette_bu</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pulse -->
+            <div class="col-lg-6 mb-4">
+                <div class="club-detail-card">
+                    <div class="club-header">
+                        <div class="club-emoji">🎪</div>
+                        <div class="club-header-info">
+                            <h3>Pulse — Event Management Club</h3>
+                            <div class="club-type">Cultural Club</div>
+                        </div>
+                    </div>
+                    <div class="club-about">Pulse is Bennett University's event management club. They handle logistics, planning and execution of major campus events. Pulse members get hands-on experience in managing large-scale events, vendor coordination and audience engagement.</div>
+                    <div class="club-events-title">📅 Events 2025-26</div>
+                    <div class="mini-event"><div><div class="mini-event-name">Event Management — Uphoria 2026</div><div class="mini-event-date">Feb 13-15, 2026 · Campus-wide</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Event Management — Sportikon 4.0</div><div class="mini-event-date">Feb 19-22, 2026 · Sports Complex</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Event Management Workshop</div><div class="mini-event-date">Apr 2026 · Seminar Hall</div></div><span class="badge-upcoming">Upcoming</span></div>
+                    <div style="margin-top:15px;">
+                        <!-- Dynamic events from database -->
+                        <div th:each="event : ${allEvents}" th:if="${event.clubName == 'Pulse'}">
+                            <div class="mini-event" style="border-left:3px solid #e94560;">
+                                <div>
+                                    <div class="mini-event-name" th:text="${event.title}">Event</div>
+                                    <div class="mini-event-date"><span th:text="${event.date}">Date</span> · <span th:text="${event.venue}">Venue</span></div>
+                                </div>
+                                <a th:href="@{/student/events/{id}(id=${event.id})}"
+                                   class="badge-upcoming" style="text-decoration:none;white-space:nowrap;">View & Register →</a>
+                            </div>
+                        </div>
+                        <a href="https://www.instagram.com/pulse_bu" target="_blank" class="btn-insta"><i class="bi bi-instagram"></i> @pulse_bu</a>
+                    </div>
+                </div>
+            </div>
+            <!-- Astronomy Club -->
+            <div class="col-lg-6 mb-4">
+                <div class="club-detail-card">
+                    <div class="club-header">
+                        <div class="club-emoji">🔭</div>
+                        <div class="club-header-info">
+                            <h3>Astronomy Club</h3>
+                            <div class="club-type">Cultural Club</div>
+                        </div>
+                    </div>
+                    <div class="club-about">Bennett University's Astronomy Club explores the universe through stargazing sessions, astrophotography workshops and science events. Their famous "Cosmos and Chaos" treasure hunt event at Uphoria x Zenevia was a multi-phase astronomy-themed competition spanning 5 phases.</div>
+                    <div class="club-events-title">📅 Events 2025-26</div>
+                    <div class="mini-event"><div><div class="mini-event-name">Cosmos and Chaos — Astronomy Treasure Hunt</div><div class="mini-event-date">Uphoria x Zenevia · Feb 2026 · Campus-wide</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Stargazing Night Session</div><div class="mini-event-date">Mar 2026 · Bennett Rooftop</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Astrophotography Workshop</div><div class="mini-event-date">Apr 2026 · Science Block</div></div><span class="badge-upcoming">Upcoming</span></div>
+                    <div style="margin-top:15px;">
+                        <!-- Dynamic events from database -->
+                        <div th:each="event : ${allEvents}" th:if="${event.clubName == 'Astronomy'}">
+                            <div class="mini-event" style="border-left:3px solid #e94560;">
+                                <div>
+                                    <div class="mini-event-name" th:text="${event.title}">Event</div>
+                                    <div class="mini-event-date"><span th:text="${event.date}">Date</span> · <span th:text="${event.venue}">Venue</span></div>
+                                </div>
+                                <a th:href="@{/student/events/{id}(id=${event.id})}"
+                                   class="badge-upcoming" style="text-decoration:none;white-space:nowrap;">View & Register →</a>
+                            </div>
+                        </div>
+                        <a href="https://www.instagram.com/astronomy_bu" target="_blank" class="btn-insta"><i class="bi bi-instagram"></i> @astronomy_bu</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ISAC Media Club -->
+            <div class="col-lg-6 mb-4">
+                <div class="club-detail-card">
+                    <div class="club-header">
+                        <div class="club-emoji">📸</div>
+                        <div class="club-header-info">
+                            <h3>ISAC — Media Club</h3>
+                            <div class="club-type">Cultural Club</div>
+                        </div>
+                    </div>
+                    <div class="club-about">ISAC is Bennett University's official media club covering photography, videography and digital content creation. They document all major campus events, produce short films and organise photography competitions like Picture Perfect at Uphoria 2026.</div>
+                    <div class="club-events-title">📅 Events 2025-26</div>
+                    <div class="mini-event"><div><div class="mini-event-name">Picture Perfect — Photography Contest at Uphoria</div><div class="mini-event-date">Feb 13-15, 2026 · Campus-wide</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Reel Rush — Short Video Contest</div><div class="mini-event-date">Feb 2026 · Campus</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Photography Workshop & Exhibition</div><div class="mini-event-date">Apr 2026 · Media Lab</div></div><span class="badge-upcoming">Upcoming</span></div>
+                    <div style="margin-top:15px;">
+                        <!-- Dynamic events from database -->
+                        <div th:each="event : ${allEvents}" th:if="${event.clubName == 'ISAC'}">
+                            <div class="mini-event" style="border-left:3px solid #e94560;">
+                                <div>
+                                    <div class="mini-event-name" th:text="${event.title}">Event</div>
+                                    <div class="mini-event-date"><span th:text="${event.date}">Date</span> · <span th:text="${event.venue}">Venue</span></div>
+                                </div>
+                                <a th:href="@{/student/events/{id}(id=${event.id})}"
+                                   class="badge-upcoming" style="text-decoration:none;white-space:nowrap;">View & Register →</a>
+                            </div>
+                        </div>
+                        <a href="https://www.instagram.com/isac.bu" target="_blank" class="btn-insta"><i class="bi bi-instagram"></i> @isac.bu</a>
+                    </div>
+                </div>
+            </div>
+            <!-- Anime Club -->
+            <div class="col-lg-6 mb-4">
+                <div class="club-detail-card">
+                    <div class="club-header">
+                        <div class="club-emoji">🎌</div>
+                        <div class="club-header-info">
+                            <h3>Anime Club — Bennett University</h3>
+                            <div class="club-type">Cultural Club</div>
+                        </div>
+                    </div>
+                    <div class="club-about">Bennett University's official Anime Club brings together anime enthusiasts on campus. They host anime screening nights, cosplay events, manga exhibitions and anime trivia contests throughout the semester.</div>
+                    <div class="club-events-title">📅 Events 2025-26</div>
+                    <div class="mini-event"><div><div class="mini-event-name">Anime Screening Night — Season Premiere</div><div class="mini-event-date">Oct 2025 · Media Lab</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Cosplay Competition at Uphoria 2026</div><div class="mini-event-date">Feb 13-15, 2026 · Activity Zone</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Anime Quiz & Trivia Night</div><div class="mini-event-date">Apr 2026 · Seminar Hall</div></div><span class="badge-upcoming">Upcoming</span></div>
+                    <div th:each="event : ${allEvents}" th:if="${event.clubName == 'Anime Club'}">
+                        <div class="mini-event" style="border-left:3px solid #e94560;">
+                            <div><div class="mini-event-name" th:text="${event.title}">Event</div><div class="mini-event-date"><span th:text="${event.date}">Date</span> · <span th:text="${event.venue}">Venue</span></div></div>
+                            <a th:href="@{/student/events/{id}(id=${event.id})}" class="badge-upcoming" style="text-decoration:none;white-space:nowrap;">View →</a>
+                        </div>
+                    </div>
+                    <div style="margin-top:15px;">
+                        <a href="https://www.instagram.com/animeclub_bu" target="_blank" class="btn-insta"><i class="bi bi-instagram"></i> @animeclub_bu</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comedy Club -->
+            <div class="col-lg-6 mb-4">
+                <div class="club-detail-card">
+                    <div class="club-header">
+                        <div class="club-emoji">🎤</div>
+                        <div class="club-header-info">
+                            <h3>Comedy Club — Bennett University</h3>
+                            <div class="club-type">Cultural Club</div>
+                        </div>
+                    </div>
+                    <div class="club-about">Bennett University's Comedy Club brings laughter to campus through open mic nights, stand-up performances, improv sessions and comedy writing workshops. They perform at major events and host their own comedy specials.</div>
+                    <div class="club-events-title">📅 Events 2025-26</div>
+                    <div class="mini-event"><div><div class="mini-event-name">Stand-up Night — Sem 1</div><div class="mini-event-date">Nov 2025 · OAT</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Comedy Show at Uphoria 2026</div><div class="mini-event-date">Feb 13, 2026 · OAT</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Open Mic Comedy Night</div><div class="mini-event-date">Apr 2026 · OAT</div></div><span class="badge-upcoming">Upcoming</span></div>
+                    <div th:each="event : ${allEvents}" th:if="${event.clubName == 'Comedy Club'}">
+                        <div class="mini-event" style="border-left:3px solid #e94560;">
+                            <div><div class="mini-event-name" th:text="${event.title}">Event</div><div class="mini-event-date"><span th:text="${event.date}">Date</span> · <span th:text="${event.venue}">Venue</span></div></div>
+                            <a th:href="@{/student/events/{id}(id=${event.id})}" class="badge-upcoming" style="text-decoration:none;white-space:nowrap;">View →</a>
+                        </div>
+                    </div>
+                    <div style="margin-top:15px;">
+                        <a href="https://www.instagram.com/comedyclub_bu" target="_blank" class="btn-insta"><i class="bi bi-instagram"></i> @comedyclub_bu</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sunset Cinema Club -->
+            <div class="col-lg-6 mb-4">
+                <div class="club-detail-card">
+                    <div class="club-header">
+                        <div class="club-emoji">🎬</div>
+                        <div class="club-header-info">
+                            <h3>Sunset — Cinema Club of Bennett</h3>
+                            <div class="club-type">Cultural Club</div>
+                        </div>
+                    </div>
+                    <div class="club-about">Sunset is Bennett University's cinema club. They host film screenings, movie discussions, director's cut events and film appreciation workshops. Sunset celebrates cinema as an art form and brings the best of world cinema to campus.</div>
+                    <div class="club-events-title">📅 Events 2025-26</div>
+                    <div class="mini-event"><div><div class="mini-event-name">Film Screening — World Cinema Series</div><div class="mini-event-date">Oct 2025 · Media Lab</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Movie Night at Uphoria 2026</div><div class="mini-event-date">Feb 14, 2026 · OAT</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Short Film Showcase 2026</div><div class="mini-event-date">Apr 2026 · Auditorium</div></div><span class="badge-upcoming">Upcoming</span></div>
+                    <div th:each="event : ${allEvents}" th:if="${event.clubName == 'Sunset'}">
+                        <div class="mini-event" style="border-left:3px solid #e94560;">
+                            <div><div class="mini-event-name" th:text="${event.title}">Event</div><div class="mini-event-date"><span th:text="${event.date}">Date</span> · <span th:text="${event.venue}">Venue</span></div></div>
+                            <a th:href="@{/student/events/{id}(id=${event.id})}" class="badge-upcoming" style="text-decoration:none;white-space:nowrap;">View →</a>
+                        </div>
+                    </div>
+                    <div style="margin-top:15px;">
+                        <a href="https://www.instagram.com/sunsetmovie.bennett" target="_blank" class="btn-insta"><i class="bi bi-instagram"></i> @sunsetmovie.bennett</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cinepeaks -->
+            <div class="col-lg-6 mb-4">
+                <div class="club-detail-card">
+                    <div class="club-header">
+                        <div class="club-emoji">🎥</div>
+                        <div class="club-header-info">
+                            <h3>Cinepeaks — Filmmaking Club of Bennett</h3>
+                            <div class="club-type">Cultural Club</div>
+                        </div>
+                    </div>
+                    <div class="club-about">Cinepeaks is Bennett University's filmmaking club. Members learn cinematography, screenwriting, video editing and film production. They produce short films, music videos and documentaries, participating in national film competitions.</div>
+                    <div class="club-events-title">📅 Events 2025-26</div>
+                    <div class="mini-event"><div><div class="mini-event-name">Short Film Production Workshop</div><div class="mini-event-date">Nov 2025 · Media Lab</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Reel Rush — Video Contest at Uphoria</div><div class="mini-event-date">Feb 13-15, 2026 · Campus</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Film Festival & Screening 2026</div><div class="mini-event-date">Apr 2026 · Auditorium</div></div><span class="badge-upcoming">Upcoming</span></div>
+                    <div th:each="event : ${allEvents}" th:if="${event.clubName == 'Cinepeaks'}">
+                        <div class="mini-event" style="border-left:3px solid #e94560;">
+                            <div><div class="mini-event-name" th:text="${event.title}">Event</div><div class="mini-event-date"><span th:text="${event.date}">Date</span> · <span th:text="${event.venue}">Venue</span></div></div>
+                            <a th:href="@{/student/events/{id}(id=${event.id})}" class="badge-upcoming" style="text-decoration:none;white-space:nowrap;">View →</a>
+                        </div>
+                    </div>
+                    <div style="margin-top:15px;">
+                        <a href="https://www.instagram.com/cinepeaks.bu" target="_blank" class="btn-insta"><i class="bi bi-instagram"></i> @cinepeaks.bu</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BU Gamers -->
+            <div class="col-lg-6 mb-4">
+                <div class="club-detail-card">
+                    <div class="club-header">
+                        <div class="club-emoji">🎮</div>
+                        <div class="club-header-info">
+                            <h3>BU Gamers — Gaming Club of Bennett</h3>
+                            <div class="club-type">Cultural Club</div>
+                        </div>
+                    </div>
+                    <div class="club-about">BU Gamers is Bennett University's official gaming club. They host gaming tournaments, esports competitions, game jams and gaming marathons. BU Gamers covers PC gaming, mobile gaming and console gaming across multiple genres.</div>
+                    <div class="club-events-title">📅 Events 2025-26</div>
+                    <div class="mini-event"><div><div class="mini-event-name">BGMI Tournament — Sem 1</div><div class="mini-event-date">Oct 2025 · Common Room</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Gaming Arena at Uphoria 2026</div><div class="mini-event-date">Feb 13-15, 2026 · Activity Zone</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Valorant & BGMI Championship</div><div class="mini-event-date">Apr 2026 · Computer Lab</div></div><span class="badge-upcoming">Upcoming</span></div>
+                    <div th:each="event : ${allEvents}" th:if="${event.clubName == 'BU Gamers'}">
+                        <div class="mini-event" style="border-left:3px solid #e94560;">
+                            <div><div class="mini-event-name" th:text="${event.title}">Event</div><div class="mini-event-date"><span th:text="${event.date}">Date</span> · <span th:text="${event.venue}">Venue</span></div></div>
+                            <a th:href="@{/student/events/{id}(id=${event.id})}" class="badge-upcoming" style="text-decoration:none;white-space:nowrap;">View →</a>
+                        </div>
+                    </div>
+                    <div style="margin-top:15px;">
+                        <a href="https://www.instagram.com/bu.gamers" target="_blank" class="btn-insta"><i class="bi bi-instagram"></i> @bu.gamers</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ═══ TECH CLUBS ═══ -->
+    <div id="tech-section" style="display:none;">
+        <div class="section-line"></div>
+        <div class="section-title">💻 Tech Clubs</div>
+        <div class="section-sub">Bennett University's technology and innovation clubs — coding, AI, cloud, hardware and more</div>
+        <div class="row">
+
+            <!-- CSI -->
+            <div class="col-lg-6 mb-4">
+                <div class="club-detail-card tech">
+                    <div class="club-header">
+                        <div class="club-emoji">💡</div>
+                        <div class="club-header-info">
+                            <h3>CSI — Computer Society of India</h3>
+                            <div class="club-type tech">Tech Club</div>
+                        </div>
+                    </div>
+                    <div class="club-about">CSI BU is the Computer Society of India student chapter at Bennett University. Organizers of the flagship Hackaccino hackathon series, CSI conducts technical workshops, coding competitions and industry talks throughout the year.</div>
+                    <div class="club-events-title">📅 Events 2025-26</div>
+                    <div class="mini-event"><div><div class="mini-event-name">Hackaccino 3.0 — 24Hr Hackathon</div><div class="mini-event-date">Apr 2025 · Bennett University</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Technical Workshop Series</div><div class="mini-event-date">Oct-Dec 2025 · Lab Blocks</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event" style="border:2px solid #e94560;background:#fff0f3;"><div><div class="mini-event-name" style="color:#e94560;">🔥 Hackaccino 4.0 — 24Hr Hackathon</div><div class="mini-event-date">Apr 11-12, 2026 · Bennett University</div></div><span class="badge-upcoming">Upcoming</span></div>
+                    <div style="margin-top:15px;">
+                        <!-- Dynamic events from database -->
+                        <div th:each="event : ${allEvents}" th:if="${event.clubName == 'CSI'}">
+                            <div class="mini-event" style="border-left:3px solid #e94560;">
+                                <div>
+                                    <div class="mini-event-name" th:text="${event.title}">Event</div>
+                                    <div class="mini-event-date"><span th:text="${event.date}">Date</span> · <span th:text="${event.venue}">Venue</span></div>
+                                </div>
+                                <<a th:href="@{/student/events/{id}(id=${event.id})}"
+                                    class="badge-upcoming" style="text-decoration:none;white-space:nowrap;">View & Register →</a>
+                            </div>
+                        </div>
+                        <a href="https://www.instagram.com/csi.bu" target="_blank" class="btn-insta"><i class="bi bi-instagram"></i> @csi.bu</a>
+                        <a href="https://hackaccino.tech" target="_blank" class="btn-register-small tech">Register Hackaccino 4.0</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ACM -->
+            <div class="col-lg-6 mb-4">
+                <div class="club-detail-card tech">
+                    <div class="club-header">
+                        <div class="club-emoji">⚙️</div>
+                        <div class="club-header-info">
+                            <h3>ACM — Association for Computing Machinery</h3>
+                            <div class="club-type tech">Tech Club</div>
+                        </div>
+                    </div>
+                    <div class="club-about">ACM BU is the Association for Computing Machinery student chapter. They focus on competitive programming, algorithm challenges and computational thinking. ACM organises coding contests, workshops and participates in ICPC regionals.</div>
+                    <div class="club-events-title">📅 Events 2025-26</div>
+                    <div class="mini-event"><div><div class="mini-event-name">Competitive Programming Contest</div><div class="mini-event-date">Oct 2025 · Computer Lab 1</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">ICPC Regionals Preparation Camp</div><div class="mini-event-date">Nov 2025 · Lab Block B</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Inter-Department Coding Competition</div><div class="mini-event-date">Apr 30, 2026 · Computer Lab 1</div></div><span class="badge-upcoming">Upcoming</span></div>
+                    <div style="margin-top:15px;">
+                        <!-- Dynamic events from database -->
+                        <div th:each="event : ${allEvents}" th:if="${event.clubName == 'ACM'}">
+                            <div class="mini-event" style="border-left:3px solid #e94560;">
+                                <div>
+                                    <div class="mini-event-name" th:text="${event.title}">Event</div>
+                                    <div class="mini-event-date"><span th:text="${event.date}">Date</span> · <span th:text="${event.venue}">Venue</span></div>
+                                </div>
+                                <a th:href="@{/student/events/{id}(id=${event.id})}"
+                                   class="badge-upcoming" style="text-decoration:none;white-space:nowrap;">View & Register →</a>
+                            </div>
+                        </div>
+                        <a href="https://www.instagram.com/acm_bu" target="_blank" class="btn-insta"><i class="bi bi-instagram"></i> @acm_bu</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- IEEE -->
+            <div class="col-lg-6 mb-4">
+                <div class="club-detail-card tech">
+                    <div class="club-header">
+                        <div class="club-emoji">⚡</div>
+                        <div class="club-header-info">
+                            <h3>IEEE — Engineering Society</h3>
+                            <div class="club-type tech">Tech Club</div>
+                        </div>
+                    </div>
+                    <div class="club-about">IEEE BU is the Institute of Electrical and Electronics Engineers student branch. They organise technical workshops on embedded systems, IoT, robotics and electronics. IEEE also hosts paper presentations and industry expert talks.</div>
+                    <div class="club-events-title">📅 Events 2025-26</div>
+                    <div class="mini-event"><div><div class="mini-event-name">Embedded Systems Workshop</div><div class="mini-event-date">Nov 2025 · Lab Block B</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">IoT Project Exhibition</div><div class="mini-event-date">Jan 2026 · Tech Block</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Robotics Workshop</div><div class="mini-event-date">Apr 2026 · Lab Block A</div></div><span class="badge-upcoming">Upcoming</span></div>
+                    <div style="margin-top:15px;">
+                        <!-- Dynamic events from database -->
+                        <div th:each="event : ${allEvents}" th:if="${event.clubName == 'IEEE'}">
+                            <div class="mini-event" style="border-left:3px solid #e94560;">
+                                <div>
+                                    <div class="mini-event-name" th:text="${event.title}">Event</div>
+                                    <div class="mini-event-date"><span th:text="${event.date}">Date</span> · <span th:text="${event.venue}">Venue</span></div>
+                                </div>
+                                <a th:href="@{/student/events/{id}(id=${event.id})}"
+                                   class="badge-upcoming" style="text-decoration:none;white-space:nowrap;">View & Register →</a>
+                            </div>
+                        </div>
+                        <a href="https://www.instagram.com/ieee_bu" target="_blank" class="btn-insta"><i class="bi bi-instagram"></i> @ieee_bu</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GDG -->
+            <div class="col-lg-6 mb-4">
+                <div class="club-detail-card tech">
+                    <div class="club-header">
+                        <div class="club-emoji">🔷</div>
+                        <div class="club-header-info">
+                            <h3>GDG — Google Developer Group</h3>
+                            <div class="club-type tech">Tech Club</div>
+                        </div>
+                    </div>
+                    <div class="club-about">GDG BU is the official Google Developer Group on campus. They host Google I/O Extended events, Android and Flutter workshops, Firebase sessions and cloud development talks. GDG connects students with Google's developer ecosystem.</div>
+                    <div class="club-events-title">📅 Events 2025-26</div>
+                    <div class="mini-event"><div><div class="mini-event-name">Google I/O Extended Bennett 2025</div><div class="mini-event-date">Dec 2025 · Seminar Hall 1</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Flutter & Firebase Workshop</div><div class="mini-event-date">Jan 2026 · Lab Block A</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Google Cloud Study Jam</div><div class="mini-event-date">Apr 2026 · Computer Lab 2</div></div><span class="badge-upcoming">Upcoming</span></div>
+                    <div style="margin-top:15px;">
+                        <!-- Dynamic events from database -->
+                        <div th:each="event : ${allEvents}" th:if="${event.clubName == 'GDG'}">
+                            <div class="mini-event" style="border-left:3px solid #e94560;">
+                                <div>
+                                    <div class="mini-event-name" th:text="${event.title}">Event</div>
+                                    <div class="mini-event-date"><span th:text="${event.date}">Date</span> · <span th:text="${event.venue}">Venue</span></div>
+                                </div>
+                                <a th:href="@{/student/events/{id}(id=${event.id})}"
+                                   class="badge-upcoming" style="text-decoration:none;white-space:nowrap;">View & Register →</a>
+                            </div>
+                        </div>
+                        <a href="https://www.instagram.com/gdgbu_" target="_blank" class="btn-insta"><i class="bi bi-instagram"></i> @gdgbu_</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AWS Cloud Club -->
+            <div class="col-lg-6 mb-4">
+                <div class="club-detail-card tech">
+                    <div class="club-header">
+                        <div class="club-emoji">☁️</div>
+                        <div class="club-header-info">
+                            <h3>AWS Cloud Club</h3>
+                            <div class="club-type tech">Tech Club</div>
+                        </div>
+                    </div>
+                    <div class="club-about">AWS Cloud Club BU is the official Amazon Web Services student club. They prepare students for AWS certifications, organise cloud computing workshops and hackathons. The club connects students with AWS's ecosystem of services and career opportunities.</div>
+                    <div class="club-events-title">📅 Events 2025-26</div>
+                    <div class="mini-event"><div><div class="mini-event-name">AWS Cloud Practitioner Bootcamp</div><div class="mini-event-date">Jan 2026 · Lab Block A</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Cloud Architecture Workshop</div><div class="mini-event-date">Feb 2026 · Computer Lab 2</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">AWS Solutions Architect Prep</div><div class="mini-event-date">Apr 2026 · Lab Block B</div></div><span class="badge-upcoming">Upcoming</span></div>
+                    <div style="margin-top:15px;">
+                        <!-- Dynamic events from database -->
+                        <div th:each="event : ${allEvents}" th:if="${event.clubName == 'AWS Cloud'}">
+                            <div class="mini-event" style="border-left:3px solid #e94560;">
+                                <div>
+                                    <div class="mini-event-name" th:text="${event.title}">Event</div>
+                                    <div class="mini-event-date"><span th:text="${event.date}">Date</span> · <span th:text="${event.venue}">Venue</span></div>
+                                </div>
+                                <a th:href="@{/student/events/{id}(id=${event.id})}"
+                                   class="badge-upcoming" style="text-decoration:none;white-space:nowrap;">View & Register →</a>
+                            </div>
+                        </div>
+                        <a href="https://www.instagram.com/awscloudclub.bu" target="_blank" class="btn-insta"><i class="bi bi-instagram"></i> @awscloudclub.bu</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alan Turing -->
+            <div class="col-lg-6 mb-4">
+                <div class="club-detail-card tech">
+                    <div class="club-header">
+                        <div class="club-emoji">🤖</div>
+                        <div class="club-header-info">
+                            <h3>Alan Turing Club — AI/ML Society</h3>
+                            <div class="club-type tech">Tech Club</div>
+                        </div>
+                    </div>
+                    <div class="club-about">Alan Turing Club is Bennett University's AI and Machine Learning society. They host hands-on ML workshops, data science projects, Kaggle competitions and AI research paper discussions. Focused on building practical AI/ML skills in students.</div>
+                    <div class="club-events-title">📅 Events 2025-26</div>
+                    <div class="mini-event"><div><div class="mini-event-name">ML Fundamentals Workshop</div><div class="mini-event-date">Oct 2025 · Lab Block B</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Kaggle Competition Bootcamp</div><div class="mini-event-date">Jan 2026 · Computer Lab 3</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">AI & ML Hands-on Workshop</div><div class="mini-event-date">Apr 20, 2026 · Lab Block B</div></div><span class="badge-upcoming">Upcoming</span></div>
+                    <div style="margin-top:15px;">
+                        <!-- Dynamic events from database -->
+                        <div th:each="event : ${allEvents}" th:if="${event.clubName == 'Alan Turing'}">
+                            <div class="mini-event" style="border-left:3px solid #e94560;">
+                                <div>
+                                    <div class="mini-event-name" th:text="${event.title}">Event</div>
+                                    <div class="mini-event-date"><span th:text="${event.date}">Date</span> · <span th:text="${event.venue}">Venue</span></div>
+                                </div>
+                                <<a th:href="@{/student/events/{id}(id=${event.id})}"
+                                    class="badge-upcoming" style="text-decoration:none;white-space:nowrap;">View & Register →</a>
+                            </div>
+                        </div>
+                        <a href="https://www.instagram.com/alanturingclub_bu" target="_blank" class="btn-insta"><i class="bi bi-instagram"></i> @alanturingclub_bu</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FullStack -->
+            <div class="col-lg-6 mb-4">
+                <div class="club-detail-card tech">
+                    <div class="club-header">
+                        <div class="club-emoji">🌐</div>
+                        <div class="club-header-info">
+                            <h3>FullStack — Web Dev Club</h3>
+                            <div class="club-type tech">Tech Club</div>
+                        </div>
+                    </div>
+                    <div class="club-about">FullStack BU is Bennett University's web development club. They teach HTML, CSS, JavaScript, React, Node.js and modern web technologies. FullStack organises hackathons, project showcases and industry connect sessions for aspiring web developers.</div>
+                    <div class="club-events-title">📅 Events 2025-26</div>
+                    <div class="mini-event"><div><div class="mini-event-name">Web Dev Bootcamp — React & Node</div><div class="mini-event-date">Nov 2025 · Computer Lab 3</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Frontend Masters Workshop</div><div class="mini-event-date">Feb 2026 · Lab Block A</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Web Dev Hackathon 2026</div><div class="mini-event-date">Apr 20, 2026 · Computer Lab 1</div></div><span class="badge-upcoming">Upcoming</span></div>
+                    <div style="margin-top:15px;">
+                        <!-- Dynamic events from database -->
+                        <div th:each="event : ${allEvents}" th:if="${event.clubName == 'FullStack'}">
+                            <div class="mini-event" style="border-left:3px solid #e94560;">
+                                <div>
+                                    <div class="mini-event-name" th:text="${event.title}">Event</div>
+                                    <div class="mini-event-date"><span th:text="${event.date}">Date</span> · <span th:text="${event.venue}">Venue</span></div>
+                                </div>
+                                <a th:href="@{/student/events/{id}(id=${event.id})}"
+                                   class="badge-upcoming" style="text-decoration:none;white-space:nowrap;">View & Register →</a>
+                            </div>
+                        </div>
+                        <a href="https://www.instagram.com/fullstackbu" target="_blank" class="btn-insta"><i class="bi bi-instagram"></i> @fullstackbu</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CodeChef -->
+            <div class="col-lg-6 mb-4">
+                <div class="club-detail-card tech">
+                    <div class="club-header">
+                        <div class="club-emoji">👨‍💻</div>
+                        <div class="club-header-info">
+                            <h3>CodeChef BU — Competitive Coding</h3>
+                            <div class="club-type tech">Tech Club</div>
+                        </div>
+                    </div>
+                    <div class="club-about">CodeChef BU is the official CodeChef campus chapter. They host competitive programming contests, DSA workshops and prepare students for coding interviews at top tech companies. CodeChef BU participates in national CodeChef contests regularly.</div>
+                    <div class="club-events-title">📅 Events 2025-26</div>
+                    <div class="mini-event"><div><div class="mini-event-name">CodeChef Starters Contest</div><div class="mini-event-date">Feb 2026 · Computer Lab 3</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">DSA Interview Prep Workshop</div><div class="mini-event-date">Mar 2026 · Seminar Hall</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Long Challenge — April Edition</div><div class="mini-event-date">Apr 2026 · Online + Campus</div></div><span class="badge-upcoming">Upcoming</span></div>
+                    <div style="margin-top:15px;">
+                        <!-- Dynamic events from database -->
+                        <div th:each="event : ${allEvents}" th:if="${event.clubName == 'CodeChef'}">
+                            <div class="mini-event" style="border-left:3px solid #e94560;">
+                                <div>
+                                    <div class="mini-event-name" th:text="${event.title}">Event</div>
+                                    <div class="mini-event-date"><span th:text="${event.date}">Date</span> · <span th:text="${event.venue}">Venue</span></div>
+                                </div>
+                                <a th:href="@{/student/events/{id}(id=${event.id})}"
+                                   class="badge-upcoming" style="text-decoration:none;white-space:nowrap;">View & Register →</a>
+                            </div>
+                        </div>
+                        <a href="https://www.instagram.com/codechefbu" target="_blank" class="btn-insta"><i class="bi bi-instagram"></i> @codechefbu</a>
+                    </div>
+                </div>
+            </div>
+            <!-- DroneSoc -->
+            <div class="col-lg-6 mb-4">
+                <div class="club-detail-card tech">
+                    <div class="club-header">
+                        <div class="club-emoji">🚁</div>
+                        <div class="club-header-info">
+                            <h3>DroneSoc — Drone Society</h3>
+                            <div class="club-type tech">Tech Club</div>
+                        </div>
+                    </div>
+                    <div class="club-about">DroneSoc is Bennett University's drone technology club. They teach drone programming, aerial photography and autonomous flight systems. Members build and program drones, participate in drone racing competitions and explore UAV applications in agriculture and surveillance.</div>
+                    <div class="club-events-title">📅 Events 2025-26</div>
+                    <div class="mini-event"><div><div class="mini-event-name">Intro to Drone Programming</div><div class="mini-event-date">Nov 2025 · Sports Ground</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Drone Racing Competition</div><div class="mini-event-date">Feb 2026 · Sports Ground</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Drone Flying & Programming Session</div><div class="mini-event-date">Apr 25, 2026 · Sports Ground</div></div><span class="badge-upcoming">Upcoming</span></div>
+                    <div style="margin-top:15px;">
+                        <!-- Dynamic events from database -->
+                        <div th:each="event : ${allEvents}" th:if="${event.clubName == 'DroneSoc'}">
+                            <div class="mini-event" style="border-left:3px solid #e94560;">
+                                <div>
+                                    <div class="mini-event-name" th:text="${event.title}">Event</div>
+                                    <div class="mini-event-date"><span th:text="${event.date}">Date</span> · <span th:text="${event.venue}">Venue</span></div>
+                                </div>
+                                <a th:href="@{/student/events/{id}(id=${event.id})}"
+                                   class="badge-upcoming" style="text-decoration:none;white-space:nowrap;">View & Register →</a>
+                            </div>
+                        </div>
+                        <a href="https://www.instagram.com/bu_dronesoc" target="_blank" class="btn-insta"><i class="bi bi-instagram"></i> @bu_dronesoc</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FOSS Club -->
+            <div class="col-lg-6 mb-4">
+                <div class="club-detail-card tech">
+                    <div class="club-header">
+                        <div class="club-emoji">🐧</div>
+                        <div class="club-header-info">
+                            <h3>FOSS — Free & Open Source Society</h3>
+                            <div class="club-type tech">Tech Club</div>
+                        </div>
+                    </div>
+                    <div class="club-about">FOSS BU promotes free and open source software culture at Bennett University. They organise Hacktoberfest participation, open source contribution drives, Linux workshops and help students make their first GitHub contributions to real projects.</div>
+                    <div class="club-events-title">📅 Events 2025-26</div>
+                    <div class="mini-event"><div><div class="mini-event-name">Hacktoberfest 2025 — Open Source Drive</div><div class="mini-event-date">Oct 2025 · Online + Campus</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Linux & Terminal Basics Workshop</div><div class="mini-event-date">Jan 2026 · Lab Block A</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Open Source Contribution Workshop</div><div class="mini-event-date">Apr 28, 2026 · Lab Block A</div></div><span class="badge-upcoming">Upcoming</span></div>
+                    <div style="margin-top:15px;">
+                        <!-- Dynamic events from database -->
+                        <div th:each="event : ${allEvents}" th:if="${event.clubName == 'FOSS'}">
+                            <div class="mini-event" style="border-left:3px solid #e94560;">
+                                <div>
+                                    <div class="mini-event-name" th:text="${event.title}">Event</div>
+                                    <div class="mini-event-date"><span th:text="${event.date}">Date</span> · <span th:text="${event.venue}">Venue</span></div>
+                                </div>
+                                <a th:href="@{/student/events/{id}(id=${event.id})}"
+                                   class="badge-upcoming" style="text-decoration:none;white-space:nowrap;">View & Register →</a>
+                            </div>
+                        </div>
+                        <a href="https://www.instagram.com/foss_bu" target="_blank" class="btn-insta"><i class="bi bi-instagram"></i> @foss_bu</a>
+                    </div>
+                </div>
+            </div>
+            <!-- GeeksForGeeks BU -->
+            <div class="col-lg-6 mb-4">
+                <div class="club-detail-card tech">
+                    <div class="club-header">
+                        <div class="club-emoji">💚</div>
+                        <div class="club-header-info">
+                            <h3>GeeksForGeeks — BU Chapter</h3>
+                            <div class="club-type tech">Tech Club</div>
+                        </div>
+                    </div>
+                    <div class="club-about">GeeksForGeeks BU is the official GFG campus chapter at Bennett University. They host DSA workshops, interview preparation sessions, coding contests and placement preparation bootcamps. GFG BU helps students crack top tech company interviews.</div>
+                    <div class="club-events-title">📅 Events 2025-26</div>
+                    <div class="mini-event"><div><div class="mini-event-name">DSA Bootcamp — Placement Prep</div><div class="mini-event-date">Nov 2025 · Seminar Hall</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">GFG Coding Contest</div><div class="mini-event-date">Jan 2026 · Computer Lab</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Interview Prep Workshop</div><div class="mini-event-date">Apr 2026 · Seminar Hall</div></div><span class="badge-upcoming">Upcoming</span></div>
+                    <div th:each="event : ${allEvents}" th:if="${event.clubName == 'GFG'}">
+                        <div class="mini-event" style="border-left:3px solid #4361ee;">
+                            <div><div class="mini-event-name" th:text="${event.title}">Event</div><div class="mini-event-date"><span th:text="${event.date}">Date</span> · <span th:text="${event.venue}">Venue</span></div></div>
+                            <a th:href="@{/student/events/{id}(id=${event.id})}" class="badge-upcoming" style="text-decoration:none;white-space:nowrap;">View →</a>
+                        </div>
+                    </div>
+                    <div style="margin-top:15px;">
+                        <a href="https://www.instagram.com/geeksforgeeks_bu" target="_blank" class="btn-insta"><i class="bi bi-instagram"></i> @geeksforgeeks_bu</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DSS -->
+            <div class="col-lg-6 mb-4">
+                <div class="club-detail-card tech">
+                    <div class="club-header">
+                        <div class="club-emoji">📊</div>
+                        <div class="club-header-info">
+                            <h3>DSS — Data Science Society</h3>
+                            <div class="club-type tech">Tech Club</div>
+                        </div>
+                    </div>
+                    <div class="club-about">DSS is Bennett University's Data Science Society. They host workshops on Python, data analysis, machine learning, visualization and real-world data projects. DSS helps students build a strong foundation in data science and analytics.</div>
+                    <div class="club-events-title">📅 Events 2025-26</div>
+                    <div class="mini-event"><div><div class="mini-event-name">Python for Data Science Workshop</div><div class="mini-event-date">Oct 2025 · Lab Block B</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Data Visualization Hackathon</div><div class="mini-event-date">Jan 2026 · Computer Lab</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">ML Project Showcase 2026</div><div class="mini-event-date">Apr 2026 · Seminar Hall</div></div><span class="badge-upcoming">Upcoming</span></div>
+                    <div th:each="event : ${allEvents}" th:if="${event.clubName == 'DSS'}">
+                        <div class="mini-event" style="border-left:3px solid #4361ee;">
+                            <div><div class="mini-event-name" th:text="${event.title}">Event</div><div class="mini-event-date"><span th:text="${event.date}">Date</span> · <span th:text="${event.venue}">Venue</span></div></div>
+                            <a th:href="@{/student/events/{id}(id=${event.id})}" class="badge-upcoming" style="text-decoration:none;white-space:nowrap;">View →</a>
+                        </div>
+                    </div>
+                    <div style="margin-top:15px;">
+                        <a href="https://www.instagram.com/dss_bu" target="_blank" class="btn-insta"><i class="bi bi-instagram"></i> @dss_bu</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- IBF -->
+            <div class="col-lg-6 mb-4">
+                <div class="club-detail-card tech">
+                    <div class="club-header">
+                        <div class="club-emoji">💰</div>
+                        <div class="club-header-info">
+                            <h3>IBF — Investment & Business Finance Club</h3>
+                            <div class="club-type tech">Tech Club</div>
+                        </div>
+                    </div>
+                    <div class="club-about">IBF is Bennett University's Investment and Business Finance club. They conduct stock market simulations, finance workshops, investment challenges and business case competitions. IBF bridges the gap between technology and finance.</div>
+                    <div class="club-events-title">📅 Events 2025-26</div>
+                    <div class="mini-event"><div><div class="mini-event-name">Stock Market Simulation</div><div class="mini-event-date">Nov 2025 · Seminar Hall</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Finance & Investment Workshop</div><div class="mini-event-date">Feb 2026 · Seminar Hall</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Business Case Competition 2026</div><div class="mini-event-date">Apr 2026 · Seminar Hall</div></div><span class="badge-upcoming">Upcoming</span></div>
+                    <div th:each="event : ${allEvents}" th:if="${event.clubName == 'IBF'}">
+                        <div class="mini-event" style="border-left:3px solid #4361ee;">
+                            <div><div class="mini-event-name" th:text="${event.title}">Event</div><div class="mini-event-date"><span th:text="${event.date}">Date</span> · <span th:text="${event.venue}">Venue</span></div></div>
+                            <a th:href="@{/student/events/{id}(id=${event.id})}" class="badge-upcoming" style="text-decoration:none;white-space:nowrap;">View →</a>
+                        </div>
+                    </div>
+                    <div style="margin-top:15px;">
+                        <a href="https://www.instagram.com/ibf.bu" target="_blank" class="btn-insta"><i class="bi bi-instagram"></i> @ibf.bu</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WIE IEEE -->
+            <div class="col-lg-6 mb-4">
+                <div class="club-detail-card tech">
+                    <div class="club-header">
+                        <div class="club-emoji">👩‍💻</div>
+                        <div class="club-header-info">
+                            <h3>WIE IEEE — Women in Engineering</h3>
+                            <div class="club-type tech">Tech Club</div>
+                        </div>
+                    </div>
+                    <div class="club-about">WIE IEEE BU is the Women in Engineering chapter at Bennett University. They host workshops, mentoring sessions, hackathons and networking events to encourage and support women in STEM fields. WIE empowers the next generation of female engineers.</div>
+                    <div class="club-events-title">📅 Events 2025-26</div>
+                    <div class="mini-event"><div><div class="mini-event-name">Women in Tech Panel Discussion</div><div class="mini-event-date">Nov 2025 · Seminar Hall</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">WIE Hackathon 2025</div><div class="mini-event-date">Jan 2026 · Computer Lab</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Women in Engineering Workshop</div><div class="mini-event-date">Apr 2026 · Seminar Hall</div></div><span class="badge-upcoming">Upcoming</span></div>
+                    <div th:each="event : ${allEvents}" th:if="${event.clubName == 'WIE IEEE'}">
+                        <div class="mini-event" style="border-left:3px solid #4361ee;">
+                            <div><div class="mini-event-name" th:text="${event.title}">Event</div><div class="mini-event-date"><span th:text="${event.date}">Date</span> · <span th:text="${event.venue}">Venue</span></div></div>
+                            <a th:href="@{/student/events/{id}(id=${event.id})}" class="badge-upcoming" style="text-decoration:none;white-space:nowrap;">View →</a>
+                        </div>
+                    </div>
+                    <div style="margin-top:15px;">
+                        <a href="https://www.instagram.com/wieieee.bu" target="_blank" class="btn-insta"><i class="bi bi-instagram"></i> @wieieee.bu</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- QCC -->
+            <div class="col-lg-6 mb-4">
+                <div class="club-detail-card tech">
+                    <div class="club-header">
+                        <div class="club-emoji">⚛️</div>
+                        <div class="club-header-info">
+                            <h3>QCC — Quantum Computing Club</h3>
+                            <div class="club-type tech">Tech Club</div>
+                        </div>
+                    </div>
+                    <div class="club-about">QCC is Bennett University's Quantum Computing Club. They explore quantum algorithms, quantum cryptography and the future of computing. QCC hosts workshops on IBM Quantum, Qiskit and quantum programming for curious minds.</div>
+                    <div class="club-events-title">📅 Events 2025-26</div>
+                    <div class="mini-event"><div><div class="mini-event-name">Intro to Quantum Computing</div><div class="mini-event-date">Oct 2025 · Lab Block B</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">IBM Quantum Workshop</div><div class="mini-event-date">Jan 2026 · Computer Lab</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Quantum Cryptography Talk</div><div class="mini-event-date">Apr 2026 · Seminar Hall</div></div><span class="badge-upcoming">Upcoming</span></div>
+                    <div th:each="event : ${allEvents}" th:if="${event.clubName == 'QCC'}">
+                        <div class="mini-event" style="border-left:3px solid #4361ee;">
+                            <div><div class="mini-event-name" th:text="${event.title}">Event</div><div class="mini-event-date"><span th:text="${event.date}">Date</span> · <span th:text="${event.venue}">Venue</span></div></div>
+                            <a th:href="@{/student/events/{id}(id=${event.id})}" class="badge-upcoming" style="text-decoration:none;white-space:nowrap;">View →</a>
+                        </div>
+                    </div>
+                    <div style="margin-top:15px;">
+                        <a href="https://www.instagram.com/qcc__bu" target="_blank" class="btn-insta"><i class="bi bi-instagram"></i> @qcc__bu</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DevOps Club -->
+            <div class="col-lg-6 mb-4">
+                <div class="club-detail-card tech">
+                    <div class="club-header">
+                        <div class="club-emoji">🔧</div>
+                        <div class="club-header-info">
+                            <h3>DevOps Club — Bennett University</h3>
+                            <div class="club-type tech">Tech Club</div>
+                        </div>
+                    </div>
+                    <div class="club-about">DevOps Club BU focuses on modern software development practices — CI/CD pipelines, Docker, Kubernetes, cloud deployment and infrastructure as code. They bridge the gap between development and operations through practical workshops.</div>
+                    <div class="club-events-title">📅 Events 2025-26</div>
+                    <div class="mini-event"><div><div class="mini-event-name">Docker & Kubernetes Workshop</div><div class="mini-event-date">Nov 2025 · Lab Block A</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">CI/CD Pipeline Bootcamp</div><div class="mini-event-date">Feb 2026 · Computer Lab</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Cloud Deployment Workshop</div><div class="mini-event-date">Apr 2026 · Lab Block A</div></div><span class="badge-upcoming">Upcoming</span></div>
+                    <div th:each="event : ${allEvents}" th:if="${event.clubName == 'DevOps'}">
+                        <div class="mini-event" style="border-left:3px solid #4361ee;">
+                            <div><div class="mini-event-name" th:text="${event.title}">Event</div><div class="mini-event-date"><span th:text="${event.date}">Date</span> · <span th:text="${event.venue}">Venue</span></div></div>
+                            <a th:href="@{/student/events/{id}(id=${event.id})}" class="badge-upcoming" style="text-decoration:none;white-space:nowrap;">View →</a>
+                        </div>
+                    </div>
+                    <div style="margin-top:15px;">
+                        <a href="https://www.instagram.com/devopsbu" target="_blank" class="btn-insta"><i class="bi bi-instagram"></i> @devopsbu</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BC3 -->
+            <div class="col-lg-6 mb-4">
+                <div class="club-detail-card tech">
+                    <div class="club-header">
+                        <div class="club-emoji">🔗</div>
+                        <div class="club-header-info">
+                            <h3>BC3 — Blockchain & Crypto Club</h3>
+                            <div class="club-type tech">Tech Club</div>
+                        </div>
+                    </div>
+                    <div class="club-about">BC3 is Bennett University's Blockchain and Crypto Club. They explore blockchain technology, Web3 development, smart contracts, DeFi and cryptocurrency. BC3 hosts workshops on Solidity, Ethereum and real-world blockchain applications.</div>
+                    <div class="club-events-title">📅 Events 2025-26</div>
+                    <div class="mini-event"><div><div class="mini-event-name">Intro to Blockchain & Web3</div><div class="mini-event-date">Oct 2025 · Seminar Hall</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Smart Contracts Workshop</div><div class="mini-event-date">Jan 2026 · Lab Block B</div></div><span class="badge-past">Past</span></div>
+                    <div class="mini-event"><div><div class="mini-event-name">Web3 Hackathon 2026</div><div class="mini-event-date">Apr 2026 · Computer Lab</div></div><span class="badge-upcoming">Upcoming</span></div>
+                    <div th:each="event : ${allEvents}" th:if="${event.clubName == 'BC3'}">
+                        <div class="mini-event" style="border-left:3px solid #4361ee;">
+                            <div><div class="mini-event-name" th:text="${event.title}">Event</div><div class="mini-event-date"><span th:text="${event.date}">Date</span> · <span th:text="${event.venue}">Venue</span></div></div>
+                            <a th:href="@{/student/events/{id}(id=${event.id})}" class="badge-upcoming" style="text-decoration:none;white-space:nowrap;">View →</a>
+                        </div>
+                    </div>
+                    <div style="margin-top:15px;">
+                        <a href="https://www.instagram.com/bc3_bu" target="_blank" class="btn-insta"><i class="bi bi-instagram"></i> @bc3_bu</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="footer">
+    <div class="container">
+        <p>🎓 <strong>CampusConnect</strong> — Bennett University · Session 2025-26 · Made with <span>❤️</span> by Team SqlChamps</p>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function showSection(section, btn) {
+        document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active','tech-active'); });
+        document.getElementById('cultural-section').style.display = 'none';
+        document.getElementById('tech-section').style.display = 'none';
+        document.getElementById(section+'-section').style.display = 'block';
+        btn.classList.add(section === 'tech' ? 'tech-active' : 'active');
+    }
+</script>
+</body>
+</html>

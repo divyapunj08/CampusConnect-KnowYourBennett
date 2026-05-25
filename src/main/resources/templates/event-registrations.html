@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Registrations — Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:#f4f6fb; font-family:'Segoe UI',sans-serif; }
+        .navbar { background:linear-gradient(90deg,#1a1a2e,#16213e); padding:12px 30px; }
+        .navbar-brand { color:#fff!important; font-weight:800; font-size:22px; }
+        .navbar-brand span { color:#e94560; }
+        .nav-link { color:rgba(255,255,255,.85)!important; font-weight:500; padding:8px 16px!important; border-radius:8px; }
+        .nav-link:hover { background:rgba(233,69,96,.2); }
+
+        .page-hero { background:linear-gradient(135deg,#1a1a2e,#0f3460); color:#fff; padding:35px 0; }
+        .hero-badge { background:rgba(233,69,96,.3); color:#fff; padding:4px 14px; border-radius:20px; font-size:12px; font-weight:700; display:inline-block; margin-bottom:10px; }
+
+        .stats-row { display:flex; gap:15px; flex-wrap:wrap; margin-bottom:25px; }
+        .stat-chip { background:#fff; border-radius:12px; padding:15px 20px; box-shadow:0 3px 12px rgba(0,0,0,.07); flex:1; min-width:120px; text-align:center; }
+        .stat-num { font-size:28px; font-weight:800; color:#0f3460; }
+        .stat-label { font-size:12px; color:#888; }
+
+        .table-card { background:#fff; border-radius:16px; padding:25px; box-shadow:0 5px 20px rgba(0,0,0,.07); }
+        .table thead th { background:#1a1a2e; color:#fff; border:none; padding:13px 15px; font-size:13px; white-space:nowrap; }
+        .table tbody td { padding:12px 15px; font-size:13px; vertical-align:middle; border-color:#f5f5f5; }
+        .table tbody tr:hover { background:#fafafa; }
+        .badge-confirmed { background:#d1e7dd; color:#0f5132; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; }
+        .btn-back { background:#e94560; color:#fff; border:none; padding:8px 20px; border-radius:8px; font-weight:600; text-decoration:none; font-size:13px; }
+        .btn-export { background:#0f3460; color:#fff; border:none; padding:8px 20px; border-radius:8px; font-weight:600; font-size:13px; cursor:pointer; }
+
+        .search-box { background:#f8f9fa; border:1.5px solid #e0e0e0; border-radius:10px; padding:8px 15px; font-size:14px; width:250px; }
+        .search-box:focus { outline:none; border-color:#e94560; }
+
+        .no-regs { text-align:center; padding:60px 20px; color:#aaa; }
+        .no-regs i { font-size:50px; margin-bottom:15px; display:block; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="container">
+        <a class="navbar-brand"><i class="bi bi-mortarboard-fill me-2"></i>Campus<span>Connect</span> Admin</a>
+        <div class="navbar-nav ms-auto d-flex flex-row gap-2">
+            <a class="nav-link" th:href="@{/admin/dashboard}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+            <a class="nav-link" th:href="@{/admin/announcements}"><i class="bi bi-megaphone"></i> Announcements</a>
+            <a class="nav-link" th:href="@{/logout}" style="background:#e94560;border-radius:8px;"><i class="bi bi-box-arrow-right"></i> Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="page-hero">
+    <div class="container">
+        <div class="hero-badge"><i class="bi bi-people me-1"></i>Registrations</div>
+        <h2 style="font-size:24px;font-weight:800;" th:text="${event.title}">Event Title</h2>
+        <div style="opacity:.8;font-size:13px;margin-top:6px;display:flex;gap:20px;flex-wrap:wrap;">
+            <span><i class="bi bi-calendar3 me-1"></i><span th:text="${event.date}">Date</span></span>
+            <span><i class="bi bi-clock me-1"></i><span th:text="${event.time}">Time</span></span>
+            <span><i class="bi bi-geo-alt me-1"></i><span th:text="${event.venue}">Venue</span></span>
+            <span><i class="bi bi-tag me-1"></i><span th:text="${event.category}">Category</span></span>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-4">
+
+    <!-- Stats -->
+    <div class="stats-row">
+        <div class="stat-chip">
+            <div class="stat-num" th:text="${registrations != null ? registrations.size() : 0}">0</div>
+            <div class="stat-label">Total Registered</div>
+        </div>
+        <div class="stat-chip">
+            <div class="stat-num" th:text="${event.maxParticipants > 0 ? event.maxParticipants : 'Open'}">100</div>
+            <div class="stat-label">Max Seats</div>
+        </div>
+        <div class="stat-chip" th:if="${event.maxParticipants > 0}">
+            <div class="stat-num" th:text="${event.maxParticipants - (registrations != null ? registrations.size() : 0)}">0</div>
+            <div class="stat-label">Seats Left</div>
+        </div>
+        <div class="stat-chip">
+            <div class="stat-num" style="font-size:16px;padding-top:5px;">LIVE</div>
+            <div class="stat-label">Status</div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-card">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <h5 style="font-weight:800;color:#1a1a2e;margin:0;">All Registrations</h5>
+            <div class="d-flex gap-2 align-items-center flex-wrap">
+                <input type="text" class="search-box" placeholder="Search by name or enrollment..."
+                       oninput="searchTable(this.value)">
+                <button class="btn-export" onclick="exportCSV()">
+                    <i class="bi bi-download me-1"></i>Export CSV
+                </button>
+                <a th:href="@{/admin/dashboard}" class="btn-back">
+                    <i class="bi bi-arrow-left me-1"></i>Back
+                </a>
+            </div>
+        </div>
+
+        <div th:if="${registrations == null or registrations.empty}" class="no-regs">
+            <i class="bi bi-inbox"></i>
+            <div style="font-weight:700;font-size:16px;margin-bottom:8px;">No registrations yet</div>
+            <div style="font-size:14px;">Students haven't registered for this event yet.</div>
+        </div>
+
+        <div th:if="${registrations != null and !registrations.empty}" class="table-responsive">
+            <table class="table table-hover" id="regTable">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Full Name</th>
+                    <th>Enrollment No.</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Department</th>
+                    <th>Year</th>
+                    <th>Registered At</th>
+                    <th>Additional Info</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="reg, stat : ${registrations}">
+                    <td style="color:#aaa;" th:text="${stat.index + 1}">1</td>
+                    <td>
+                        <div style="font-weight:600;" th:text="${reg.fullName}">Name</div>
+                        <div style="font-size:11px;color:#aaa;" th:text="${'#' + reg.id}">ID</div>
+                    </td>
+                    <td style="font-weight:600;color:#4361ee;" th:text="${reg.enrollment}">E22XXX</td>
+                    <td th:text="${reg.email}">email</td>
+                    <td th:text="${reg.phoneNumber}">phone</td>
+                    <td>
+                            <span style="background:#f0f4ff;color:#4361ee;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600;"
+                                  th:text="${reg.department}">CSE</span>
+                    </td>
+                    <td th:text="${reg.yearOfStudy}">1st Year</td>
+                    <td style="font-size:11px;color:#888;" th:text="${reg.registeredAt}">Time</td>
+                    <td>
+                            <span th:if="${reg.additionalInfo != null and reg.additionalInfo != ''}"
+                                  style="font-size:12px;color:#666;" th:text="${reg.additionalInfo}">Info</span>
+                        <span th:if="${reg.additionalInfo == null or reg.additionalInfo == ''}"
+                              style="color:#ccc;font-size:12px;">—</span>
+                    </td>
+                    <td><span class="badge-confirmed">CONFIRMED</span></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Search table
+    function searchTable(q) {
+        const rows = document.querySelectorAll('#regTable tbody tr');
+        q = q.toLowerCase();
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(q) ? '' : 'none';
+        });
+    }
+
+    // Export to CSV
+    function exportCSV() {
+        const table = document.getElementById('regTable');
+        if (!table) return;
+        let csv = [];
+        const rows = table.querySelectorAll('tr');
+        rows.forEach(row => {
+            const cols = row.querySelectorAll('th, td');
+            const rowData = Array.from(cols).map(col =>
+                '"' + col.textContent.trim().replace(/"/g,'""') + '"'
+            );
+            csv.push(rowData.join(','));
+        });
+        const blob = new Blob([csv.join('\n')], {type:'text/csv'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'registrations.csv';
+        a.click();
+    }
+</script>
+</body>
+</html>

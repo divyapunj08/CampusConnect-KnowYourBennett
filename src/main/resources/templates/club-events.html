@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusConnect - Club Events</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:#f4f6fb; font-family:'Segoe UI',sans-serif; }
+        .navbar { background:linear-gradient(90deg,#1a1a2e,#16213e); padding:12px 30px; box-shadow:0 2px 20px rgba(0,0,0,.3); }
+        .navbar-brand { color:#fff!important; font-weight:800; font-size:22px; }
+        .navbar-brand span { color:#e94560; }
+        .nav-link { color:rgba(255,255,255,.85)!important; font-weight:500; padding:8px 16px!important; border-radius:8px; transition:all .3s; }
+        .nav-link:hover { background:rgba(233,69,96,.2); color:#e94560!important; }
+
+        .page-hero { background:linear-gradient(135deg,#1a1a2e,#0f3460); color:#fff; padding:60px 0 40px; }
+        .page-hero h1 { font-size:36px; font-weight:800; }
+        .page-hero p { opacity:.8; font-size:15px; margin-top:10px; }
+
+        .filter-btn { background:#fff; color:#1a1a2e; border:2px solid #e0e0e0; padding:8px 20px; border-radius:25px; font-weight:600; font-size:13px; cursor:pointer; transition:all .3s; margin:4px; text-decoration:none; display:inline-block; }
+        .filter-btn:hover, .filter-btn.active { background:#e94560; color:#fff; border-color:#e94560; }
+        .filter-btn.tech-active { background:#4361ee; color:#fff; border-color:#4361ee; }
+
+        .event-card { background:#fff; border-radius:16px; overflow:hidden; box-shadow:0 5px 20px rgba(0,0,0,.08); transition:all .3s; height:100%; }
+        .event-card:hover { transform:translateY(-8px); box-shadow:0 15px 40px rgba(0,0,0,.15); }
+        .event-card.tech { border-top:3px solid #4361ee; }
+        .event-card.cultural { border-top:3px solid #e94560; }
+        .event-card-header { padding:25px 25px 15px; }
+        .club-badge { padding:5px 14px; border-radius:20px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; display:inline-block; margin-bottom:12px; }
+        .badge-tech { background:#f0f4ff; color:#4361ee; }
+        .badge-cultural { background:#fff0f3; color:#e94560; }
+        .event-title { font-size:17px; font-weight:700; color:#1a1a2e; margin-bottom:8px; }
+        .event-desc { font-size:13px; color:#888; line-height:1.6; margin-bottom:15px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+        .event-meta { padding:0 25px 20px; }
+        .event-meta-item { display:flex; align-items:center; gap:8px; font-size:13px; color:#666; margin-bottom:6px; }
+        .event-meta-item i { color:#e94560; }
+        .event-footer { padding:15px 25px; border-top:1px solid #f5f5f5; display:flex; justify-content:space-between; align-items:center; }
+        .btn-register { background:#e94560; color:#fff; border:none; padding:8px 20px; border-radius:8px; font-weight:600; font-size:13px; text-decoration:none; transition:all .3s; }
+        .btn-register:hover { background:#0f3460; color:#fff; }
+        .btn-register.tech { background:#4361ee; }
+        .btn-register.tech:hover { background:#1a1a2e; }
+        .spots-left { font-size:12px; color:#888; }
+        .spots-left span { color:#e94560; font-weight:700; }
+
+        .section-line { width:50px; height:4px; background:#e94560; border-radius:2px; margin-bottom:10px; }
+        .section-title { font-size:22px; font-weight:800; color:#1a1a2e; margin-bottom:5px; }
+        .section-sub { color:#888; font-size:14px; margin-bottom:25px; }
+
+        .footer { background:#1a1a2e; color:rgba(255,255,255,.7); padding:25px 0; text-align:center; font-size:14px; margin-top:50px; }
+        .footer span { color:#e94560; }
+
+        /* Search bar */
+        .search-input { background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.3); color:white; padding:8px 40px 8px 15px; border-radius:25px; font-size:13px; width:200px; outline:none; }
+        .search-input::placeholder { color:rgba(255,255,255,.6); }
+        .search-input:focus { background:rgba(255,255,255,.25); }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand"><i class="bi bi-mortarboard-fill me-2"></i>Campus<span>Connect</span></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNav" style="border-color:rgba(255,255,255,.3)">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" th:href="@{/student/dashboard}"><i class="bi bi-house"></i> Home</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/student/events}"><i class="bi bi-calendar-event"></i> Events</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/student/club-events}" style="background:rgba(233,69,96,.3);"><i class="bi bi-people-fill"></i> Club Events</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/clubs}"><i class="bi bi-grid"></i> Clubs</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/student/my-registrations}"><i class="bi bi-bookmark-check"></i> My Registrations</a></li>
+                <!-- Search -->
+                <li class="nav-item me-2">
+                    <form th:action="@{/search}" method="get" class="d-flex">
+                        <div style="position:relative;">
+                            <input type="text" name="query" placeholder="Search events..." class="search-input">
+                            <button type="submit" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:white;cursor:pointer;">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                </li>
+                <li class="nav-item ms-2">
+                    <a class="nav-link" th:href="@{/logout}" style="background:#e94560;color:white!important;border-radius:8px;">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero -->
+<div class="page-hero">
+    <div class="container">
+        <h1>🏛️ Club Events</h1>
+        <p>Events organized by Bennett University Clubs & Societies — Tech and Cultural</p>
+    </div>
+</div>
+
+<div class="container mt-5">
+
+    <!-- Filter -->
+    <div class="mb-4">
+        <button class="filter-btn active" onclick="filterClub('all',this)">All Club Events</button>
+        <button class="filter-btn" onclick="filterClub('Club-Tech',this)">💻 Tech Club Events</button>
+        <button class="filter-btn" onclick="filterClub('Club-Cultural',this)">🎭 Cultural Club Events</button>
+    </div>
+
+    <!-- No events -->
+    <div th:if="${clubEvents == null or clubEvents.empty}" class="text-center py-5">
+        <div style="font-size:60px;">📭</div>
+        <h5 class="mt-3 text-muted">No club events available right now</h5>
+        <p class="text-muted">Check back later or ask your club admin to add events!</p>
+    </div>
+
+    <!-- Events Grid -->
+    <div class="row" id="clubEventsGrid">
+        <div class="col-md-4 mb-4 club-event-item"
+             th:each="event : ${clubEvents}"
+             th:attr="data-category=${event.category}">
+            <div class="event-card"
+                 th:classappend="${event.category == 'Club-Tech'} ? 'tech' : 'cultural'">
+                <div class="event-card-header">
+                    <span class="club-badge"
+                          th:classappend="${event.category == 'Club-Tech'} ? 'badge-tech' : 'badge-cultural'"
+                          th:text="${event.clubName != null and event.clubName != ''} ? ${event.clubName} : ${event.category}">
+                        Club
+                    </span>
+                    <div class="event-title" th:text="${event.title}">Title</div>
+                    <div class="event-desc" th:text="${event.description}">Desc</div>
+                </div>
+                <div class="event-meta">
+                    <div class="event-meta-item">
+                        <i class="bi bi-calendar3"></i>
+                        <span th:text="${event.date}">Date</span>
+                    </div>
+                    <div class="event-meta-item">
+                        <i class="bi bi-clock"></i>
+                        <span th:text="${event.time}">Time</span>
+                    </div>
+                    <div class="event-meta-item">
+                        <i class="bi bi-geo-alt"></i>
+                        <span th:text="${event.venue}">Venue</span>
+                    </div>
+                    <div class="event-meta-item" th:if="${event.maxParticipants > 0}">
+                        <i class="bi bi-people"></i>
+                        <span th:text="${event.maxParticipants} + ' seats available'">Seats</span>
+                    </div>
+                    <div class="event-meta-item" th:if="${event.maxParticipants == 0}">
+                        <i class="bi bi-infinity"></i>
+                        <span>Unlimited seats</span>
+                    </div>
+                </div>
+                <div class="event-footer">
+                    <a th:href="@{/student/events/{id}(id=${event.id})}"
+                       class="btn-register"
+                       th:classappend="${event.category == 'Club-Tech'} ? 'tech' : ''">
+                        View & Register →
+                    </a>
+                    <div class="spots-left" th:if="${event.maxParticipants > 0}">
+                        <span th:text="${event.maxParticipants}">100</span> spots
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="footer">
+    <p>🎓 <strong>CampusConnect</strong> — Bennett University · Session 2025-26 · Made with <span>❤️</span> by Team SqlChamps</p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function filterClub(category, btn) {
+        document.querySelectorAll('.filter-btn').forEach(b => {
+            b.classList.remove('active','tech-active');
+        });
+        if (category === 'Club-Tech') btn.classList.add('tech-active');
+        else btn.classList.add('active');
+
+        document.querySelectorAll('.club-event-item').forEach(item => {
+            item.style.display = (category === 'all' ||
+                item.dataset.category === category) ? 'block' : 'none';
+        });
+    }
+</script>
+</body>
+</html>

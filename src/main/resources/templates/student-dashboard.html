@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusConnect - Bennett University</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:#f4f6fb; font-family:'Segoe UI',sans-serif; }
+
+        .navbar { background:linear-gradient(90deg,#1a1a2e,#16213e); padding:12px 30px; box-shadow:0 2px 20px rgba(0,0,0,.3); }
+        .navbar-brand { color:#fff!important; font-weight:800; font-size:22px; letter-spacing:1px; }
+        .navbar-brand span { color:#e94560; }
+        .nav-link { color:rgba(255,255,255,.85)!important; font-weight:500; padding:8px 16px!important; border-radius:8px; transition:all .3s; }
+        .nav-link:hover { background:rgba(233,69,96,.2); color:#e94560!important; }
+
+        /* New events popup notification */
+        .new-events-popup {
+            position:fixed; top:80px; right:20px; z-index:9999;
+            background:linear-gradient(135deg,#1a1a2e,#0f3460);
+            color:#fff; padding:15px 20px; border-radius:14px;
+            box-shadow:0 10px 40px rgba(0,0,0,.3);
+            display:flex; align-items:center; gap:12px;
+            font-weight:600; font-size:14px; min-width:280px;
+            animation:slideInRight .4s ease;
+        }
+        @keyframes slideInRight {
+            from{transform:translateX(120%);opacity:0}
+            to{transform:translateX(0);opacity:1}
+        }
+        @keyframes slideOutRight {
+            from{transform:translateX(0);opacity:1}
+            to{transform:translateX(120%);opacity:0}
+        }
+        .popup-icon { background:#e94560; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+
+        /* Featured Events Slider */
+        .featured-section { background:#1a1a2e; padding:0; position:relative; overflow:hidden; }
+        .featured-slider { display:flex; transition:transform .5s ease; }
+        .featured-slide {
+            min-width:100%; padding:50px 0; position:relative;
+            background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);
+            overflow:hidden;
+        }
+        .featured-slide::before {
+            content:''; position:absolute; top:-30%; right:-5%;
+            width:400px; height:400px; background:rgba(233,69,96,.1);
+            border-radius:50%;
+        }
+        .featured-content { position:relative; z-index:2; }
+        .featured-badge {
+            background:#e94560; color:#fff; padding:5px 16px;
+            border-radius:20px; font-size:12px; font-weight:700;
+            text-transform:uppercase; letter-spacing:2px;
+            display:inline-block; margin-bottom:15px;
+        }
+        .featured-title { font-size:38px; font-weight:800; color:#fff; margin-bottom:10px; line-height:1.2; }
+        .featured-desc { color:rgba(255,255,255,.8); font-size:15px; margin-bottom:20px; max-width:600px; line-height:1.7; }
+        .featured-stats { display:flex; gap:15px; flex-wrap:wrap; margin-bottom:25px; }
+        .featured-stat { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2); color:#fff; padding:6px 14px; border-radius:20px; font-size:13px; font-weight:600; }
+        .btn-featured { background:#e94560; color:#fff; padding:12px 28px; border-radius:10px; font-weight:700; text-decoration:none; display:inline-block; transition:all .3s; margin-right:10px; }
+        .btn-featured:hover { background:#fff; color:#e94560; }
+        .btn-featured-outline { background:transparent; color:#fff; border:2px solid rgba(255,255,255,.5); padding:12px 28px; border-radius:10px; font-weight:700; text-decoration:none; display:inline-block; transition:all .3s; }
+        .btn-featured-outline:hover { background:rgba(255,255,255,.1); color:#fff; }
+
+        /* Slider controls */
+        .slider-controls { position:absolute; bottom:20px; left:50%; transform:translateX(-50%); display:flex; gap:8px; z-index:3; }
+        .slider-dot { width:10px; height:10px; border-radius:50%; background:rgba(255,255,255,.4); cursor:pointer; transition:all .3s; border:none; }
+        .slider-dot.active { background:#e94560; width:24px; border-radius:5px; }
+        .slider-arrow { position:absolute; top:50%; transform:translateY(-50%); background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.3); color:#fff; width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:3; transition:all .3s; font-size:18px; }
+        .slider-arrow:hover { background:rgba(233,69,96,.5); }
+        .slider-prev { left:20px; }
+        .slider-next { right:20px; }
+
+        /* Hero */
+        .hero { background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460); color:#fff; padding:60px 0 45px; position:relative; overflow:hidden; }
+        .hero::before { content:''; position:absolute; top:-50%; right:-10%; width:600px; height:600px; background:rgba(233,69,96,.08); border-radius:50%; }
+        .hero-content { position:relative; z-index:2; }
+        .hero h1 { font-size:40px; font-weight:800; line-height:1.2; }
+        .hero h1 span { color:#e94560; }
+        .hero p { font-size:15px; opacity:.85; margin:15px 0 25px; }
+        .hero-badge { background:rgba(233,69,96,.2); border:1px solid #e94560; color:#e94560; padding:6px 16px; border-radius:20px; font-size:13px; font-weight:600; display:inline-block; margin-bottom:20px; }
+        .btn-hero { background:#e94560; color:#fff; border:none; padding:12px 28px; border-radius:10px; font-weight:600; font-size:14px; text-decoration:none; margin-right:10px; transition:all .3s; display:inline-block; }
+        .btn-hero:hover { background:#fff; color:#e94560; }
+        .btn-hero-outline { background:transparent; color:#fff; border:2px solid rgba(255,255,255,.5); padding:12px 28px; border-radius:10px; font-weight:600; font-size:14px; text-decoration:none; transition:all .3s; display:inline-block; }
+        .btn-hero-outline:hover { background:rgba(255,255,255,.1); color:#fff; }
+
+        /* Stats */
+        .stats-bar { background:#fff; padding:20px 0; box-shadow:0 5px 20px rgba(0,0,0,.06); }
+        .stat-item { text-align:center; padding:8px 20px; border-right:1px solid #eee; }
+        .stat-item:last-child { border-right:none; }
+        .stat-number { font-size:28px; font-weight:800; color:#0f3460; }
+        .stat-label { font-size:12px; color:#888; font-weight:500; }
+
+        /* Countdown */
+        .countdown-section { background:linear-gradient(135deg,#e94560,#c23152); color:#fff; padding:25px 0; }
+        .countdown-box { background:rgba(255,255,255,.2); border-radius:12px; padding:12px 18px; text-align:center; min-width:72px; }
+        .countdown-num { font-size:30px; font-weight:800; line-height:1; }
+        .countdown-label { font-size:10px; opacity:.8; text-transform:uppercase; letter-spacing:1px; }
+        .countdown-sep { font-size:24px; font-weight:800; opacity:.6; }
+
+        /* Section */
+        .section-title { font-size:24px; font-weight:800; color:#1a1a2e; margin-bottom:5px; }
+        .section-subtitle { color:#888; font-size:14px; margin-bottom:25px; }
+        .section-line { width:45px; height:4px; background:#e94560; border-radius:2px; margin-bottom:10px; }
+
+        /* Signature Fests */
+        .fest-card { border-radius:18px; padding:30px; color:#fff; position:relative; overflow:hidden; min-height:210px; display:flex; flex-direction:column; justify-content:flex-end; box-shadow:0 8px 30px rgba(0,0,0,.15); transition:transform .3s; }
+        .fest-card:hover { transform:translateY(-6px); }
+        .fest-uphoria { background:linear-gradient(135deg,#e94560,#c23152); }
+        .fest-sportikon { background:linear-gradient(135deg,#2d6a4f,#1b4332); }
+        .fest-bennovate { background:linear-gradient(135deg,#4361ee,#3a0ca3); }
+        .fest-title { font-size:24px; font-weight:800; margin-bottom:4px; }
+        .fest-date { font-size:11px; opacity:.8; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; }
+        .fest-sub { font-size:12px; opacity:.85; margin-bottom:15px; line-height:1.5; }
+        .fest-stats { display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
+        .fest-stat { background:rgba(255,255,255,.15); border-radius:6px; padding:4px 10px; font-size:11px; font-weight:600; }
+        .fest-icon { position:absolute; top:15px; right:15px; font-size:55px; opacity:.15; }
+        .btn-fest { background:rgba(255,255,255,.2); color:#fff; border:1.5px solid rgba(255,255,255,.6); padding:8px 18px; border-radius:8px; font-weight:600; font-size:12px; text-decoration:none; display:inline-block; transition:all .3s; }
+        .btn-fest:hover { background:#fff; color:#e94560; }
+
+        /* Filter */
+        .filter-btn { background:#fff; color:#1a1a2e; border:2px solid #e0e0e0; padding:7px 18px; border-radius:25px; font-weight:600; font-size:13px; cursor:pointer; transition:all .3s; margin:4px; }
+        .filter-btn:hover,.filter-btn.active { background:#e94560; color:#fff; border-color:#e94560; }
+
+        /* Event Cards */
+        .event-card { background:#fff; border-radius:16px; overflow:hidden; box-shadow:0 5px 20px rgba(0,0,0,.07); transition:all .3s; height:100%; }
+        .event-card:hover { transform:translateY(-6px); box-shadow:0 12px 35px rgba(0,0,0,.13); }
+        .event-card-header { padding:22px 22px 14px; }
+        .event-category-badge { padding:4px 12px; border-radius:20px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; display:inline-block; margin-bottom:10px; }
+        .badge-fest { background:#fff0f3; color:#e94560; }
+        .badge-sports { background:#f0fff4; color:#2d6a4f; }
+        .badge-workshop { background:#fff8f0; color:#f77f00; }
+        .badge-seminar { background:#f5f0ff; color:#7b2d8b; }
+        .badge-cultural { background:#fff0f3; color:#e94560; }
+        .badge-competition { background:#f0f4ff; color:#4361ee; }
+        .badge-default { background:#f0f4ff; color:#4361ee; }
+        .event-title { font-size:16px; font-weight:700; color:#1a1a2e; margin-bottom:6px; }
+        .event-desc { font-size:13px; color:#888; line-height:1.6; margin-bottom:12px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+        .event-meta { padding:0 22px 18px; }
+        .event-meta-item { display:flex; align-items:center; gap:8px; font-size:13px; color:#666; margin-bottom:5px; }
+        .event-meta-item i { color:#e94560; }
+        .event-footer { padding:12px 22px; border-top:1px solid #f5f5f5; display:flex; justify-content:space-between; align-items:center; }
+        .btn-register { background:#e94560; color:#fff; border:none; padding:7px 18px; border-radius:8px; font-weight:600; font-size:12px; text-decoration:none; transition:all .3s; }
+        .btn-register:hover { background:#0f3460; color:#fff; }
+        .spots-left { font-size:11px; color:#888; }
+        .spots-left span { color:#e94560; font-weight:700; }
+
+        /* News */
+        .news-card { background:#fff; border-radius:14px; padding:22px; box-shadow:0 5px 20px rgba(0,0,0,.07); border-left:4px solid #e94560; margin-bottom:14px; transition:all .3s; }
+        .news-card:hover { transform:translateX(4px); }
+        .news-date { font-size:11px; color:#e94560; font-weight:600; text-transform:uppercase; letter-spacing:1px; }
+        .news-title { font-size:15px; font-weight:700; color:#1a1a2e; margin:4px 0; }
+        .news-desc { font-size:13px; color:#888; }
+
+        /* Quick links */
+        .quick-link { display:flex; align-items:center; gap:14px; padding:13px; border-radius:10px; text-decoration:none; color:#1a1a2e; transition:all .3s; margin-bottom:8px; background:#f8f9fa; }
+        .quick-link:hover { background:#fff0f3; color:#e94560; transform:translateX(4px); }
+
+        /* Footer */
+        .footer { background:#1a1a2e; color:rgba(255,255,255,.7); padding:25px 0; text-align:center; font-size:14px; margin-top:50px; }
+        .footer span { color:#e94560; }
+
+        /* Search */
+        .search-input { background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.3); color:white; padding:8px 40px 8px 15px; border-radius:25px; font-size:13px; width:190px; outline:none; }
+        .search-input::placeholder { color:rgba(255,255,255,.6); }
+        .search-input:focus { background:rgba(255,255,255,.25); }
+
+        /* Toast */
+        .toast-notification { position:fixed; top:80px; right:20px; z-index:9999; min-width:300px; padding:16px 20px; border-radius:14px; font-weight:600; font-size:14px; box-shadow:0 10px 40px rgba(0,0,0,.2); display:flex; align-items:center; gap:12px; animation:slideInRight .4s ease; }
+        .toast-success { background:linear-gradient(135deg,#28a745,#1e7e34); color:#fff; }
+        .toast-error { background:linear-gradient(135deg,#dc3545,#a71d2a); color:#fff; }
+    </style>
+</head>
+<body>
+
+<!-- Toast Notifications -->
+<div th:if="${successMessage}" class="toast-notification toast-success" id="successToast">
+    <i class="bi bi-check-circle-fill" style="font-size:20px;flex-shrink:0;"></i>
+    <span th:text="${successMessage}">Success!</span>
+    <button onclick="closeToast('successToast')" style="background:none;border:none;color:#fff;margin-left:auto;cursor:pointer;font-size:16px;">&times;</button>
+</div>
+<div th:if="${errorMessage}" class="toast-notification toast-error" id="errorToast" style="top:140px;">
+    <i class="bi bi-x-circle-fill" style="font-size:20px;flex-shrink:0;"></i>
+    <span th:text="${errorMessage}">Error!</span>
+    <button onclick="closeToast('errorToast')" style="background:none;border:none;color:#fff;margin-left:auto;cursor:pointer;font-size:16px;">&times;</button>
+</div>
+
+<!-- New Events Popup -->
+<div th:if="${recentCount > 0}" class="new-events-popup" id="newEventsPopup">
+    <div class="popup-icon">
+        <i class="bi bi-bell-fill" style="font-size:16px;"></i>
+    </div>
+    <div>
+        <div th:text="${recentCount} + ' new event(s) added this week!'">New events!</div>
+        <div style="font-size:12px;opacity:.8;margin-top:2px;">Scroll down to discover them</div>
+    </div>
+    <button onclick="closePopup()" style="background:none;border:none;color:#fff;margin-left:auto;cursor:pointer;font-size:16px;flex-shrink:0;">&times;</button>
+</div>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand"><i class="bi bi-mortarboard-fill me-2"></i>Campus<span>Connect</span></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" style="border-color:rgba(255,255,255,.3)">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" th:href="@{/student/dashboard}"><i class="bi bi-house"></i> Home</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/student/events}"><i class="bi bi-calendar-event"></i> Events</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/student/club-events}"><i class="bi bi-people-fill"></i> Club Events</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/clubs}"><i class="bi bi-grid"></i> Clubs</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/about}"><i class="bi bi-info-circle"></i> About</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/student/my-registrations}"><i class="bi bi-bookmark-check"></i> My Registrations</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/student/profile}"><i class="bi bi-person-circle"></i> Profile</a></li>
+                <li class="nav-item me-2">
+                    <form th:action="@{/search}" method="get" class="d-flex">
+                        <div style="position:relative;">
+                            <input type="text" name="query" placeholder="Search events..." class="search-input">
+                            <button type="submit" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:white;cursor:pointer;"><i class="bi bi-search"></i></button>
+                        </div>
+                    </form>
+                </li>
+                <li class="nav-item ms-1">
+                    <a class="nav-link" th:href="@{/logout}" style="background:#e94560;color:white!important;border-radius:8px;"><i class="bi bi-box-arrow-right"></i> Logout</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Featured Events Slider (only shows if admin has featured events) -->
+<div th:if="${featuredEvents != null and !featuredEvents.empty}" class="featured-section">
+    <div class="featured-slider" id="featuredSlider">
+        <div th:each="event : ${featuredEvents}" class="featured-slide">
+            <div class="container featured-content">
+                <div class="row align-items-center">
+                    <div class="col-lg-8">
+                        <div class="featured-badge">
+                            <i class="bi bi-star-fill me-1"></i>
+                            Featured Event
+                        </div>
+                        <div class="featured-title" th:text="${event.title}">Event Title</div>
+                        <div class="featured-desc" th:text="${event.description}">Description</div>
+                        <div class="featured-stats">
+                            <span class="featured-stat">
+                                <i class="bi bi-calendar3 me-1"></i>
+                                <span th:text="${event.date}">Date</span>
+                            </span>
+                            <span class="featured-stat">
+                                <i class="bi bi-geo-alt me-1"></i>
+                                <span th:text="${event.venue}">Venue</span>
+                            </span>
+                            <span class="featured-stat" th:if="${event.maxParticipants > 0}">
+                                <i class="bi bi-people me-1"></i>
+                                <span th:text="${event.maxParticipants} + ' seats'">Seats</span>
+                            </span>
+                            <span class="featured-stat" th:if="${event.category != null}">
+                                <i class="bi bi-tag me-1"></i>
+                                <span th:text="${event.category}">Category</span>
+                            </span>
+                        </div>
+                        <a th:href="@{/student/events/{id}(id=${event.id})}" class="btn-featured">
+                            <i class="bi bi-arrow-right-circle me-1"></i> View & Register
+                        </a>
+                        <a th:if="${event.registrationUrl != null and event.registrationUrl != ''}"
+                           th:href="${event.registrationUrl}" target="_blank" class="btn-featured-outline">
+                            <i class="bi bi-link-45deg me-1"></i> External Link
+                        </a>
+                    </div>
+                    <div class="col-lg-4 text-center d-none d-lg-block">
+                        <div style="font-size:120px;opacity:.1;color:#fff;">
+                            <i th:if="${event.category == 'Competition'}" class="bi bi-trophy"></i>
+                            <i th:if="${event.category == 'Workshop'}" class="bi bi-tools"></i>
+                            <i th:if="${event.category == 'Fest'}" class="bi bi-music-note-beamed"></i>
+                            <i th:if="${event.category == 'Seminar'}" class="bi bi-mic"></i>
+                            <i th:if="${event.category == 'Sports'}" class="bi bi-dribbble"></i>
+                            <i th:if="${event.category == 'Cultural'}" class="bi bi-palette"></i>
+                            <i th:if="${event.category == 'Club-Tech'}" class="bi bi-code-slash"></i>
+                            <i th:if="${event.category == 'Club-Cultural'}" class="bi bi-camera"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slider arrows (only show if multiple featured events) -->
+    <button class="slider-arrow slider-prev" id="prevBtn" onclick="changeSlide(-1)"
+            th:if="${featuredEvents.size() > 1}">
+        <i class="bi bi-chevron-left"></i>
+    </button>
+    <button class="slider-arrow slider-next" id="nextBtn" onclick="changeSlide(1)"
+            th:if="${featuredEvents.size() > 1}">
+        <i class="bi bi-chevron-right"></i>
+    </button>
+
+    <!-- Dots -->
+    <div class="slider-controls" th:if="${featuredEvents.size() > 1}" id="sliderDots"></div>
+</div>
+
+<!-- Hero -->
+<div class="hero">
+    <div class="container hero-content">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <div class="hero-badge">
+                    <i class="bi bi-building me-1"></i>
+                    Bennett University, Greater Noida — Session 2025-26
+                </div>
+                <h1>Welcome back,<br>
+                    <span th:text="${student != null ? student.name : 'Student'}">Student</span>!
+                </h1>
+                <p>Discover, register and participate in all events at Bennett University. From tech fests to cultural celebrations — everything in one place.</p>
+                <a th:href="@{/student/events}" class="btn-hero"><i class="bi bi-calendar-event me-1"></i>Browse Events</a>
+                <a th:href="@{/student/my-registrations}" class="btn-hero-outline"><i class="bi bi-bookmark-check me-1"></i>My Registrations</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="stats-bar">
+    <div class="container">
+        <div class="row">
+            <div class="col-6 col-md-3"><div class="stat-item"><div class="stat-number" th:text="${events != null ? events.size() : 0}">0</div><div class="stat-label">Total Events</div></div></div>
+            <div class="col-6 col-md-3"><div class="stat-item"><div class="stat-number">40+</div><div class="stat-label">Clubs & Societies</div></div></div>
+            <div class="col-6 col-md-3"><div class="stat-item"><div class="stat-number">35K+</div><div class="stat-label">Participants</div></div></div>
+            <div class="col-6 col-md-3"><div class="stat-item"><div class="stat-number">100+</div><div class="stat-label">Colleges</div></div></div>
+        </div>
+    </div>
+</div>
+
+
+<div class="container mt-5">
+
+    <!-- Signature Fests -->
+    <div class="section-line"></div>
+    <div class="section-title">Bennett's 3 Biggest Events — Session 2025-26</div>
+    <div class="section-subtitle">The grand celebrations that define Bennett University every year</div>
+    <div class="row mb-5">
+        <div class="col-lg-4 mb-4">
+            <div class="fest-card fest-uphoria">
+                <div class="fest-icon"><i class="bi bi-music-note-beamed"></i></div>
+                <div class="fest-date">Feb 13-15, 2026</div>
+                <div class="fest-title">Uphoria 2026</div>
+                <div class="fest-sub">Annual Cultural Fest · Theme: Where Stories Write Themselves · Celebrity performances</div>
+                <div class="fest-stats"><div class="fest-stat">35,000+ Footfall</div><div class="fest-stat">60+ Events</div></div>
+                <a th:href="@{/student/events(category='Fest')}" class="btn-fest">View & Register</a>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <div class="fest-card fest-sportikon">
+                <div class="fest-icon"><i class="bi bi-trophy"></i></div>
+                <div class="fest-date">Feb 19-22, 2026</div>
+                <div class="fest-title">Sportikon 4.0</div>
+                <div class="fest-sub">Annual Sports Fest · 1800+ Athletes · 100+ Universities · Rs 11 Lakh Prize Pool</div>
+                <div class="fest-stats"><div class="fest-stat">20+ Sports</div><div class="fest-stat">28,000+ Footfall</div></div>
+                <a th:href="@{/student/events(category='Sports')}" class="btn-fest">View & Register</a>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <div class="fest-card fest-bennovate">
+                <div class="fest-icon"><i class="bi bi-lightbulb"></i></div>
+                <div class="fest-date">Nov 14-15, 2025</div>
+                <div class="fest-title">Bennovate 4.0</div>
+                <div class="fest-sub">Annual Entrepreneurship Summit · Founders meet Funders · Spark Tank · Industry Leaders</div>
+                <div class="fest-stats"><div class="fest-stat">DPIIT Supported</div><div class="fest-stat">5000+ Attendees</div></div>
+                <a th:href="@{/student/events(category='Seminar')}" class="btn-fest">View & Register</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- All Events -->
+    <div class="section-line"></div>
+    <div class="section-title">All Events — Session 2025-26</div>
+    <div class="section-subtitle">Browse, filter and register — newest events shown first</div>
+    <div class="mb-4">
+        <button class="filter-btn active" onclick="filterEvents('all',this)">All</button>
+        <button class="filter-btn" onclick="filterEvents('Fest',this)">Fest</button>
+        <button class="filter-btn" onclick="filterEvents('Workshop',this)">Workshop</button>
+        <button class="filter-btn" onclick="filterEvents('Seminar',this)">Seminar</button>
+        <button class="filter-btn" onclick="filterEvents('Competition',this)">Competition</button>
+        <button class="filter-btn" onclick="filterEvents('Sports',this)">Sports</button>
+        <button class="filter-btn" onclick="filterEvents('Cultural',this)">Cultural</button>
+    </div>
+    <div class="row" id="eventsGrid">
+        <div th:if="${events == null or events.empty}" class="col-12 text-center py-5">
+            <i class="bi bi-inbox" style="font-size:50px;color:#ccc;"></i>
+            <h5 class="mt-3 text-muted">No events available right now</h5>
+        </div>
+        <div class="col-md-4 mb-4 event-item" th:each="event : ${events}" th:attr="data-category=${event.category}">
+            <div class="event-card">
+                <div class="event-card-header">
+                    <span class="event-category-badge"
+                          th:classappend="${event.category=='Fest'}?'badge-fest':(${event.category=='Workshop'}?'badge-workshop':(${event.category=='Sports'}?'badge-sports':(${event.category=='Seminar'}?'badge-seminar':(${event.category=='Cultural'}?'badge-cultural':(${event.category=='Competition'}?'badge-competition':'badge-default')))))"
+                          th:text="${event.category}">Cat</span>
+                    <div th:if="${event.isFeatured()}" style="display:inline-block;margin-left:8px;background:#fff0f3;color:#e94560;padding:2px 10px;border-radius:20px;font-size:10px;font-weight:700;">
+                        <i class="bi bi-star-fill me-1"></i>FEATURED
+                    </div>
+                    <div class="event-title" th:text="${event.title}">Title</div>
+                    <div class="event-desc" th:text="${event.description}">Desc</div>
+                </div>
+                <div class="event-meta">
+                    <div class="event-meta-item"><i class="bi bi-calendar3"></i><span th:text="${event.date}">Date</span></div>
+                    <div class="event-meta-item"><i class="bi bi-clock"></i><span th:text="${event.time}">Time</span></div>
+                    <div class="event-meta-item"><i class="bi bi-geo-alt"></i><span th:text="${event.venue}">Venue</span></div>
+                </div>
+                <div class="event-footer">
+                    <a th:href="@{/student/events/{id}(id=${event.id})}" class="btn-register">View & Register</a>
+                    <div class="spots-left" th:if="${event.maxParticipants > 0}"><span th:text="${event.maxParticipants}">100</span> spots</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Clubs Quick Access Grid -->
+    <div class="mt-3 mb-5">
+        <div class="section-line"></div>
+        <div class="section-title">Clubs & Societies</div>
+        <div class="section-subtitle">Click any club to visit their Instagram page</div>
+
+        <div style="background:#fff;border-radius:16px;padding:25px;box-shadow:0 5px 20px rgba(0,0,0,.07);">
+            <div style="font-size:13px;font-weight:700;color:#e94560;text-transform:uppercase;letter-spacing:1px;margin-bottom:15px;">
+                <i class="bi bi-palette me-2"></i>Cultural Clubs
+            </div>
+            <div class="row g-2 mb-4">
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a href="https://www.instagram.com/ansh.bu" target="_blank" style="display:flex;flex-direction:column;align-items:center;padding:14px 8px;background:#fff0f3;border-radius:12px;text-decoration:none;color:#1a1a2e;transition:all .3s;" onmouseover="this.style.background='#e94560';this.style.color='#fff'" onmouseout="this.style.background='#fff0f3';this.style.color='#1a1a2e'">
+                        <i class="bi bi-mask" style="font-size:22px;color:#e94560;margin-bottom:6px;"></i>
+                        <span style="font-size:12px;font-weight:700;text-align:center;">Ansh</span>
+                        <span style="font-size:10px;opacity:.7;text-align:center;">Theatre</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a href="https://www.instagram.com/verve_bu" target="_blank" style="display:flex;flex-direction:column;align-items:center;padding:14px 8px;background:#fff0f3;border-radius:12px;text-decoration:none;color:#1a1a2e;transition:all .3s;" onmouseover="this.style.background='#e94560';this.style.color='#fff'" onmouseout="this.style.background='#fff0f3';this.style.color='#1a1a2e'">
+                        <i class="bi bi-music-note-beamed" style="font-size:22px;color:#e94560;margin-bottom:6px;"></i>
+                        <span style="font-size:12px;font-weight:700;text-align:center;">Verve</span>
+                        <span style="font-size:10px;opacity:.7;text-align:center;">Dance</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a href="https://www.instagram.com/advaita.bu" target="_blank" style="display:flex;flex-direction:column;align-items:center;padding:14px 8px;background:#fff0f3;border-radius:12px;text-decoration:none;color:#1a1a2e;transition:all .3s;" onmouseover="this.style.background='#e94560';this.style.color='#fff'" onmouseout="this.style.background='#fff0f3';this.style.color='#1a1a2e'">
+                        <i class="bi bi-music-note" style="font-size:22px;color:#e94560;margin-bottom:6px;"></i>
+                        <span style="font-size:12px;font-weight:700;text-align:center;">Advaita</span>
+                        <span style="font-size:10px;opacity:.7;text-align:center;">Music</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a href="https://www.instagram.com/rivaaz_bu" target="_blank" style="display:flex;flex-direction:column;align-items:center;padding:14px 8px;background:#fff0f3;border-radius:12px;text-decoration:none;color:#1a1a2e;transition:all .3s;" onmouseover="this.style.background='#e94560';this.style.color='#fff'" onmouseout="this.style.background='#fff0f3';this.style.color='#1a1a2e'">
+                        <i class="bi bi-disc" style="font-size:22px;color:#e94560;margin-bottom:6px;"></i>
+                        <span style="font-size:12px;font-weight:700;text-align:center;">Rivaaz</span>
+                        <span style="font-size:10px;opacity:.7;text-align:center;">Trad. Dance</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a href="https://www.instagram.com/cerebrum.bu" target="_blank" style="display:flex;flex-direction:column;align-items:center;padding:14px 8px;background:#fff0f3;border-radius:12px;text-decoration:none;color:#1a1a2e;transition:all .3s;" onmouseover="this.style.background='#e94560';this.style.color='#fff'" onmouseout="this.style.background='#fff0f3';this.style.color='#1a1a2e'">
+                        <i class="bi bi-book" style="font-size:22px;color:#e94560;margin-bottom:6px;"></i>
+                        <span style="font-size:12px;font-weight:700;text-align:center;">Cerebrum</span>
+                        <span style="font-size:10px;opacity:.7;text-align:center;">Literary</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a href="https://www.instagram.com/panache_bu" target="_blank" style="display:flex;flex-direction:column;align-items:center;padding:14px 8px;background:#fff0f3;border-radius:12px;text-decoration:none;color:#1a1a2e;transition:all .3s;" onmouseover="this.style.background='#e94560';this.style.color='#fff'" onmouseout="this.style.background='#fff0f3';this.style.color='#1a1a2e'">
+                        <i class="bi bi-handbag" style="font-size:22px;color:#e94560;margin-bottom:6px;"></i>
+                        <span style="font-size:12px;font-weight:700;text-align:center;">Panache</span>
+                        <span style="font-size:10px;opacity:.7;text-align:center;">Fashion</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a href="https://www.instagram.com/silhouette_bu" target="_blank" style="display:flex;flex-direction:column;align-items:center;padding:14px 8px;background:#fff0f3;border-radius:12px;text-decoration:none;color:#1a1a2e;transition:all .3s;" onmouseover="this.style.background='#e94560';this.style.color='#fff'" onmouseout="this.style.background='#fff0f3';this.style.color='#1a1a2e'">
+                        <i class="bi bi-brush" style="font-size:22px;color:#e94560;margin-bottom:6px;"></i>
+                        <span style="font-size:12px;font-weight:700;text-align:center;">Silhouette</span>
+                        <span style="font-size:10px;opacity:.7;text-align:center;">Art</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a href="https://www.instagram.com/pulse_bu" target="_blank" style="display:flex;flex-direction:column;align-items:center;padding:14px 8px;background:#fff0f3;border-radius:12px;text-decoration:none;color:#1a1a2e;transition:all .3s;" onmouseover="this.style.background='#e94560';this.style.color='#fff'" onmouseout="this.style.background='#fff0f3';this.style.color='#1a1a2e'">
+                        <i class="bi bi-calendar-event" style="font-size:22px;color:#e94560;margin-bottom:6px;"></i>
+                        <span style="font-size:12px;font-weight:700;text-align:center;">Pulse</span>
+                        <span style="font-size:10px;opacity:.7;text-align:center;">Events</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a href="https://www.instagram.com/isac.bu" target="_blank" style="display:flex;flex-direction:column;align-items:center;padding:14px 8px;background:#fff0f3;border-radius:12px;text-decoration:none;color:#1a1a2e;transition:all .3s;" onmouseover="this.style.background='#e94560';this.style.color='#fff'" onmouseout="this.style.background='#fff0f3';this.style.color='#1a1a2e'">
+                        <i class="bi bi-camera" style="font-size:22px;color:#e94560;margin-bottom:6px;"></i>
+                        <span style="font-size:12px;font-weight:700;text-align:center;">ISAC</span>
+                        <span style="font-size:10px;opacity:.7;text-align:center;">Media</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a href="https://www.instagram.com/astronomy_bu" target="_blank" style="display:flex;flex-direction:column;align-items:center;padding:14px 8px;background:#fff0f3;border-radius:12px;text-decoration:none;color:#1a1a2e;transition:all .3s;" onmouseover="this.style.background='#e94560';this.style.color='#fff'" onmouseout="this.style.background='#fff0f3';this.style.color='#1a1a2e'">
+                        <i class="bi bi-stars" style="font-size:22px;color:#e94560;margin-bottom:6px;"></i>
+                        <span style="font-size:12px;font-weight:700;text-align:center;">Astronomy</span>
+                        <span style="font-size:10px;opacity:.7;text-align:center;">Space</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a href="https://www.instagram.com/animeclub_bu" target="_blank" style="display:flex;flex-direction:column;align-items:center;padding:14px 8px;background:#fff0f3;border-radius:12px;text-decoration:none;color:#1a1a2e;transition:all .3s;" onmouseover="this.style.background='#e94560';this.style.color='#fff'" onmouseout="this.style.background='#fff0f3';this.style.color='#1a1a2e'">
+                        <i class="bi bi-tv" style="font-size:22px;color:#e94560;margin-bottom:6px;"></i>
+                        <span style="font-size:12px;font-weight:700;text-align:center;">Anime Club</span>
+                        <span style="font-size:10px;opacity:.7;text-align:center;">Anime</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a href="https://www.instagram.com/comedyclub_bu" target="_blank" style="display:flex;flex-direction:column;align-items:center;padding:14px 8px;background:#fff0f3;border-radius:12px;text-decoration:none;color:#1a1a2e;transition:all .3s;" onmouseover="this.style.background='#e94560';this.style.color='#fff'" onmouseout="this.style.background='#fff0f3';this.style.color='#1a1a2e'">
+                        <i class="bi bi-mic" style="font-size:22px;color:#e94560;margin-bottom:6px;"></i>
+                        <span style="font-size:12px;font-weight:700;text-align:center;">Comedy Club</span>
+                        <span style="font-size:10px;opacity:.7;text-align:center;">Comedy</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a href="https://www.instagram.com/sunsetmovie.bennett" target="_blank" style="display:flex;flex-direction:column;align-items:center;padding:14px 8px;background:#fff0f3;border-radius:12px;text-decoration:none;color:#1a1a2e;transition:all .3s;" onmouseover="this.style.background='#e94560';this.style.color='#fff'" onmouseout="this.style.background='#fff0f3';this.style.color='#1a1a2e'">
+                        <i class="bi bi-film" style="font-size:22px;color:#e94560;margin-bottom:6px;"></i>
+                        <span style="font-size:12px;font-weight:700;text-align:center;">Sunset</span>
+                        <span style="font-size:10px;opacity:.7;text-align:center;">Cinema</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a href="https://www.instagram.com/cinepeaks.bu" target="_blank" style="display:flex;flex-direction:column;align-items:center;padding:14px 8px;background:#fff0f3;border-radius:12px;text-decoration:none;color:#1a1a2e;transition:all .3s;" onmouseover="this.style.background='#e94560';this.style.color='#fff'" onmouseout="this.style.background='#fff0f3';this.style.color='#1a1a2e'">
+                        <i class="bi bi-camera-video" style="font-size:22px;color:#e94560;margin-bottom:6px;"></i>
+                        <span style="font-size:12px;font-weight:700;text-align:center;">Cinepeaks</span>
+                        <span style="font-size:10px;opacity:.7;text-align:center;">Filmmaking</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a href="https://www.instagram.com/bu.gamers" target="_blank" style="display:flex;flex-direction:column;align-items:center;padding:14px 8px;background:#fff0f3;border-radius:12px;text-decoration:none;color:#1a1a2e;transition:all .3s;" onmouseover="this.style.background='#e94560';this.style.color='#fff'" onmouseout="this.style.background='#fff0f3';this.style.color='#1a1a2e'">
+                        <i class="bi bi-controller" style="font-size:22px;color:#e94560;margin-bottom:6px;"></i>
+                        <span style="font-size:12px;font-weight:700;text-align:center;">BU Gamers</span>
+                        <span style="font-size:10px;opacity:.7;text-align:center;">Gaming</span>
+                    </a>
+                </div>
+            </div>
+
+            <div style="font-size:13px;font-weight:700;color:#4361ee;text-transform:uppercase;letter-spacing:1px;margin-bottom:15px;">
+                <i class="bi bi-code-slash me-2"></i>Tech Clubs
+            </div>
+            <div class="row g-2">
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a href="https://www.instagram.com/csi.bu" target="_blank" style="display:flex;flex-direction:column;align-items:center;padding:14px 8px;background:#f0f4ff;border-radius:12px;text-decoration:none;color:#1a1a2e;transition:all .3s;" onmouseover="this.style.background='#4361ee';this.style.color='#fff'" onmouseout="this.style.background='#f0f4ff';this.style.color='#1a1a2e'">
+                        <i class="bi bi-cpu" style="font-size:22px;color:#4361ee;margin-bottom:6px;"></i>
+                        <span style="font-size:12px;font-weight:700;text-align:center;">CSI</span>
+                        <span style="font-size:10px;opacity:.7;text-align:center;">Computing</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a href="https://www.instagram.com/acm_bu" target="_blank" style="display:flex;flex-direction:column;align-items:center;padding:14px 8px;background:#f0f4ff;border-radius:12px;text-decoration:none;color:#1a1a2e;transition:all .3s;" onmouseover="this.style.background='#4361ee';this.style.color='#fff'" onmouseout="this.style.background='#f0f4ff';this.style.color='#1a1a2e'">
+                        <i class="bi bi-code-square" style="font-size:22px;color:#4361ee;margin-bottom:6px;"></i>
+                        <span style="font-size:12px;font-weight:700;text-align:center;">ACM</span>
+                        <span style="font-size:10px;opacity:.7;text-align:center;">Competitive</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a href="https://www.instagram.com/ieee_bu" target="_blank" style="display:flex;flex-direction:column;align-items:center;padding:14px 8px;background:#f0f4ff;border-radius:12px;text-decoration:none;color:#1a1a2e;transition:all .3s;" onmouseover="this.style.background='#4361ee';this.style.color='#fff'" onmouseout="this.style.background='#f0f4ff';this.style.color='#1a1a2e'">
+                        <i class="bi bi-lightning" style="font-size:22px;color:#4361ee;margin-bottom:6px;"></i>
+                        <span style="font-size:12px;font-weight:700;text-align:center;">IEEE</span>
+                        <span style="font-size:10px;opacity:.7;text-align:center;">Engineering</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a href="https://www.instagram.com/gdgbu_" target="_blank" style="display:flex;flex-direction:column;align-items:center;padding:14px 8px;background:#f0f4ff;border-radius:12px;text-decoration:none;color:#1a1a2e;transition:all .3s;" onmouseover="this.style.background='#4361ee';this.style.color='#fff'" onmouseout="this.style.background='#f0f4ff';this.style.color='#1a1a2e'">
+                        <i class="bi bi-google" style="font-size:22px;color:#4361ee;margin-bottom:6px;"></i>
+                        <span style="font-size:12px;font-weight:700;text-align:center;">GDG</span>
+                        <span style="font-size:10px;opacity:.7;text-align:center;">Google Dev</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a href="https://www.instagram.com/awscloudclub.bu" target="_blank" style="display:flex;flex-direction:column;align-items:center;padding:14px 8px;background:#f0f4ff;border-radius:12px;text-decoration:none;color:#1a1a2e;transition:all .3s;" onmouseover="this.style.background='#4361ee';this.style.color='#fff'" onmouseout="this.style.background='#f0f4ff';this.style.color='#1a1a2e'">
+                        <i class="bi bi-cloud" style="font-size:22px;color:#4361ee;margin-bottom:6px;"></i>
+                        <span style="font-size:12px;font-weight:700;text-align:center;">AWS Cloud</span>
+                        <span style="font-size:10px;opacity:.7;text-align:center;">Cloud</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a href="https://www.instagram.com/alanturingclub_bu" target="_blank" style="display:flex;flex-direction:column;align-items:center;padding:14px 8px;background:#f0f4ff;border-radius:12px;text-decoration:none;color:#1a1a2e;transition:all .3s;" onmouseover="this.style.background='#4361ee';this.style.color='#fff'" onmouseout="this.style.background='#f0f4ff';this.style.color='#1a1a2e'">
+                        <i class="bi bi-robot" style="font-size:22px;color:#4361ee;margin-bottom:6px;"></i>
+                        <span style="font-size:12px;font-weight:700;text-align:center;">Alan Turing</span>
+                        <span style="font-size:10px;opacity:.7;text-align:center;">AI/ML</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a href="https://www.instagram.com/fullstackbu" target="_blank" style="display:flex;flex-direction:column;align-items:center;padding:14px 8px;background:#f0f4ff;border-radius:12px;text-decoration:none;color:#1a1a2e;transition:all .3s;" onmouseover="this.style.background='#4361ee';this.style.color='#fff'" onmouseout="this.style.background='#f0f4ff';this.style.color='#1a1a2e'">
+                        <i class="bi bi-globe" style="font-size:22px;color:#4361ee;margin-bottom:6px;"></i>
+                        <span style="font-size:12px;font-weight:700;text-align:center;">FullStack</span>
+                        <span style="font-size:10px;opacity:.7;text-align:center;">Web Dev</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a href="https://www.instagram.com/codechefbu" target="_blank" style="display:flex;flex-direction:column;align-items:center;padding:14px 8px;background:#f0f4ff;border-radius:12px;text-decoration:none;color:#1a1a2e;transition:all .3s;" onmouseover="this.style.background='#4361ee';this.style.color='#fff'" onmouseout="this.style.background='#f0f4ff';this.style.color='#1a1a2e'">
+                        <i class="bi bi-terminal" style="font-size:22px;color:#4361ee;margin-bottom:6px;"></i>
+                        <span style="font-size:12px;font-weight:700;text-align:center;">CodeChef</span>
+                        <span style="font-size:10px;opacity:.7;text-align:center;">Coding</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a href="https://www.instagram.com/bu_dronesoc" target="_blank" style="display:flex;flex-direction:column;align-items:center;padding:14px 8px;background:#f0f4ff;border-radius:12px;text-decoration:none;color:#1a1a2e;transition:all .3s;" onmouseover="this.style.background='#4361ee';this.style.color='#fff'" onmouseout="this.style.background='#f0f4ff';this.style.color='#1a1a2e'">
+                        <i class="bi bi-send" style="font-size:22px;color:#4361ee;margin-bottom:6px;"></i>
+                        <span style="font-size:12px;font-weight:700;text-align:center;">DroneSoc</span>
+                        <span style="font-size:10px;opacity:.7;text-align:center;">Drones</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a href="https://www.instagram.com/foss_bu" target="_blank" style="display:flex;flex-direction:column;align-items:center;padding:14px 8px;background:#f0f4ff;border-radius:12px;text-decoration:none;color:#1a1a2e;transition:all .3s;" onmouseover="this.style.background='#4361ee';this.style.color='#fff'" onmouseout="this.style.background='#f0f4ff';this.style.color='#1a1a2e'">
+                        <i class="bi bi-github" style="font-size:22px;color:#4361ee;margin-bottom:6px;"></i>
+                        <span style="font-size:12px;font-weight:700;text-align:center;">FOSS</span>
+                        <span style="font-size:10px;opacity:.7;text-align:center;">Open Source</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a href="https://www.instagram.com/wieieee.bu" target="_blank" style="display:flex;flex-direction:column;align-items:center;padding:14px 8px;background:#f0f4ff;border-radius:12px;text-decoration:none;color:#1a1a2e;transition:all .3s;" onmouseover="this.style.background='#4361ee';this.style.color='#fff'" onmouseout="this.style.background='#f0f4ff';this.style.color='#1a1a2e'">
+                        <i class="bi bi-people" style="font-size:22px;color:#4361ee;margin-bottom:6px;"></i>
+                        <span style="font-size:12px;font-weight:700;text-align:center;">WIE IEEE</span>
+                        <span style="font-size:10px;opacity:.7;text-align:center;">Women in Eng</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a href="https://www.instagram.com/dss_bu" target="_blank" style="display:flex;flex-direction:column;align-items:center;padding:14px 8px;background:#f0f4ff;border-radius:12px;text-decoration:none;color:#1a1a2e;transition:all .3s;" onmouseover="this.style.background='#4361ee';this.style.color='#fff'" onmouseout="this.style.background='#f0f4ff';this.style.color='#1a1a2e'">
+                        <i class="bi bi-bar-chart" style="font-size:22px;color:#4361ee;margin-bottom:6px;"></i>
+                        <span style="font-size:12px;font-weight:700;text-align:center;">DSS</span>
+                        <span style="font-size:10px;opacity:.7;text-align:center;">Data Science</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a href="https://www.instagram.com/qcc__bu" target="_blank" style="display:flex;flex-direction:column;align-items:center;padding:14px 8px;background:#f0f4ff;border-radius:12px;text-decoration:none;color:#1a1a2e;transition:all .3s;" onmouseover="this.style.background='#4361ee';this.style.color='#fff'" onmouseout="this.style.background='#f0f4ff';this.style.color='#1a1a2e'">
+                        <i class="bi bi-diagram-3" style="font-size:22px;color:#4361ee;margin-bottom:6px;"></i>
+                        <span style="font-size:12px;font-weight:700;text-align:center;">QCC</span>
+                        <span style="font-size:10px;opacity:.7;text-align:center;">Quantum</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a href="https://www.instagram.com/devopsbu" target="_blank" style="display:flex;flex-direction:column;align-items:center;padding:14px 8px;background:#f0f4ff;border-radius:12px;text-decoration:none;color:#1a1a2e;transition:all .3s;" onmouseover="this.style.background='#4361ee';this.style.color='#fff'" onmouseout="this.style.background='#f0f4ff';this.style.color='#1a1a2e'">
+                        <i class="bi bi-gear" style="font-size:22px;color:#4361ee;margin-bottom:6px;"></i>
+                        <span style="font-size:12px;font-weight:700;text-align:center;">DevOps</span>
+                        <span style="font-size:10px;opacity:.7;text-align:center;">DevOps</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a href="https://www.instagram.com/geeksforgeeks_bu" target="_blank" style="display:flex;flex-direction:column;align-items:center;padding:14px 8px;background:#f0f4ff;border-radius:12px;text-decoration:none;color:#1a1a2e;transition:all .3s;" onmouseover="this.style.background='#4361ee';this.style.color='#fff'" onmouseout="this.style.background='#f0f4ff';this.style.color='#1a1a2e'">
+                        <i class="bi bi-mortarboard" style="font-size:22px;color:#4361ee;margin-bottom:6px;"></i>
+                        <span style="font-size:12px;font-weight:700;text-align:center;">GFG</span>
+                        <span style="font-size:10px;opacity:.7;text-align:center;">GeeksForGeeks</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a href="https://www.instagram.com/ibf.bu" target="_blank" style="display:flex;flex-direction:column;align-items:center;padding:14px 8px;background:#f0f4ff;border-radius:12px;text-decoration:none;color:#1a1a2e;transition:all .3s;" onmouseover="this.style.background='#4361ee';this.style.color='#fff'" onmouseout="this.style.background='#f0f4ff';this.style.color='#1a1a2e'">
+                        <i class="bi bi-cash-coin" style="font-size:22px;color:#4361ee;margin-bottom:6px;"></i>
+                        <span style="font-size:12px;font-weight:700;text-align:center;">IBF</span>
+                        <span style="font-size:10px;opacity:.7;text-align:center;">Finance</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <a href="https://www.instagram.com/bc3_bu" target="_blank" style="display:flex;flex-direction:column;align-items:center;padding:14px 8px;background:#f0f4ff;border-radius:12px;text-decoration:none;color:#1a1a2e;transition:all .3s;" onmouseover="this.style.background='#4361ee';this.style.color='#fff'" onmouseout="this.style.background='#f0f4ff';this.style.color='#1a1a2e'">
+                        <i class="bi bi-link-45deg" style="font-size:22px;color:#4361ee;margin-bottom:6px;"></i>
+                        <span style="font-size:12px;font-weight:700;text-align:center;">BC3</span>
+                        <span style="font-size:10px;opacity:.7;text-align:center;">Blockchain</span>
+                    </a>
+                </div>
+            </div>
+            <div style="text-align:center;margin-top:18px;">
+                <a th:href="@{/clubs}" style="background:#1a1a2e;color:#fff;padding:10px 25px;border-radius:10px;font-weight:600;font-size:13px;text-decoration:none;display:inline-block;">
+                    <i class="bi bi-arrow-right-circle me-2"></i>View All Club Details & Events
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- News & Quick Links -->
+    <div class="row mt-3 mb-5">
+        <div class="col-lg-8">
+            <div class="section-line"></div>
+            <div class="section-title">Recent News & Announcements</div>
+            <div class="section-subtitle">Latest updates from Bennett University — Session 2025-26</div>
+            <div th:each="ann : ${announcements}">
+                <div class="news-card">
+                    <div class="news-date" th:text="${ann.announcementDate}">Date</div>
+                    <div class="news-title" th:text="${ann.title}">Title</div>
+                    <div class="news-desc" th:text="${ann.description}">Desc</div>
+                </div>
+            </div>
+            <div th:if="${announcements == null or announcements.empty}">
+                <div class="news-card">
+                    <div class="news-date">Feb 19-22, 2026</div>
+                    <div class="news-title">Sportikon 4.0 Ends on a High Note!</div>
+                    <div class="news-desc">Sportikon 4.0 concluded with intense competition across 20+ sports. 1800+ athletes from 100+ universities. Prize pool of Rs 11 Lakh distributed.</div>
+                </div>
+                <div class="news-card">
+                    <div class="news-date">Feb 13-15, 2026</div>
+                    <div class="news-title">Uphoria 2026 — Where Stories Write Themselves</div>
+                    <div class="news-desc">Uphoria 2026 saw 35,000+ footfall with celebrity performances by Shruti Dhasmana and DJ Karmari. Prom Night, Mr & Ms Uphoria and DJ Night!</div>
+                </div>
+                <div class="news-card">
+                    <div class="news-date">Nov 14-15, 2025</div>
+                    <div class="news-title">Bennovate 4.0 — Founders Meet Funders</div>
+                    <div class="news-desc">Bennovate 4.0 featured Spark Tank, startup expo, launch of Bennett Innovation Journal and industry leaders from Cashify, Neemrana Hotels and more.</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 mt-4 mt-lg-0">
+            <div class="section-line"></div>
+            <div class="section-title">Quick Links</div>
+            <div class="section-subtitle">Easy access to everything</div>
+            <div style="background:#fff;border-radius:16px;padding:22px;box-shadow:0 5px 20px rgba(0,0,0,.07);">
+                <a th:href="@{/student/events}" class="quick-link"><i class="bi bi-calendar-event" style="font-size:22px;color:#e94560;"></i><div><div style="font-weight:700;font-size:14px;">Browse All Events</div><div style="font-size:12px;color:#888;">View all 2025-26 events</div></div></a>
+                <a th:href="@{/student/club-events}" class="quick-link"><i class="bi bi-people-fill" style="font-size:22px;color:#4361ee;"></i><div><div style="font-weight:700;font-size:14px;">Club Events</div><div style="font-size:12px;color:#888;">Tech and cultural clubs</div></div></a>
+                <a th:href="@{/student/my-registrations}" class="quick-link"><i class="bi bi-bookmark-check" style="font-size:22px;color:#2d6a4f;"></i><div><div style="font-weight:700;font-size:14px;">My Registrations</div><div style="font-size:12px;color:#888;">View registered events</div></div></a>
+                <a href="https://www.bennett.edu.in" target="_blank" class="quick-link"><i class="bi bi-globe" style="font-size:22px;color:#7b2d8b;"></i><div><div style="font-weight:700;font-size:14px;">Bennett University</div><div style="font-size:12px;color:#888;">Official website</div></div></a>
+                <a href="https://www.timesofbennett.com" target="_blank" class="quick-link"><i class="bi bi-newspaper" style="font-size:22px;color:#f77f00;"></i><div><div style="font-weight:700;font-size:14px;">Times of Bennett</div><div style="font-size:12px;color:#888;">Latest BU news</div></div></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+    <div class="container">
+        <p><strong>CampusConnect</strong> — Bennett University Event Management System · Session 2025-26</p>
+        <p style="margin-top:5px;">Made with <span>love</span> by Team SqlChamps · Plot No 8-11, TechZone II, Greater Noida</p>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Countdown timer
+    function updateCountdown() {
+        const target = new Date('2026-04-30T10:00:00');
+        const now = new Date();
+        const diff = target - now;
+        if (diff <= 0) { ['days','hours','minutes','seconds'].forEach(id => document.getElementById(id).textContent='00'); return; }
+        document.getElementById('days').textContent = String(Math.floor(diff/86400000)).padStart(2,'0');
+        document.getElementById('hours').textContent = String(Math.floor((diff%86400000)/3600000)).padStart(2,'0');
+        document.getElementById('minutes').textContent = String(Math.floor((diff%3600000)/60000)).padStart(2,'0');
+        document.getElementById('seconds').textContent = String(Math.floor((diff%60000)/1000)).padStart(2,'0');
+    }
+    setInterval(updateCountdown,1000);
+    updateCountdown();
+
+    // Event filter
+    function filterEvents(category,btn) {
+        document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.event-item').forEach(item=>{
+            item.style.display=(category==='all'||item.dataset.category===category)?'block':'none';
+        });
+    }
+
+    // Toast close
+    function closeToast(id) {
+        const t = document.getElementById(id);
+        if(t) { t.style.animation='slideOutRight .4s ease forwards'; setTimeout(()=>t.remove(),400); }
+    }
+
+    // Popup close
+    function closePopup() {
+        const p = document.getElementById('newEventsPopup');
+        if(p) { p.style.animation='slideOutRight .4s ease forwards'; setTimeout(()=>p.remove(),400); }
+    }
+
+    // New events popup — show only ONCE per session
+document.addEventListener('DOMContentLoaded', function() {
+    const popup = document.getElementById('newEventsPopup');
+    if (popup) {
+        // Check if already shown this session
+        if (sessionStorage.getItem('popupShown')) {
+            popup.remove();
+        } else {
+            // Mark as shown for this session
+            sessionStorage.setItem('popupShown', 'true');
+            // Auto dismiss after 6 seconds
+            setTimeout(() => closePopup(), 6000);
+        }
+    }
+    // Auto dismiss toasts
+    ['successToast','errorToast'].forEach(id => {
+        const t = document.getElementById(id);
+        if (t) setTimeout(() => closeToast(id), 5000);
+    });
+});
+    // Featured Events Slider
+    const slider = document.getElementById('featuredSlider');
+    if(slider) {
+        const slides = slider.querySelectorAll('.featured-slide');
+        const dotsContainer = document.getElementById('sliderDots');
+        let current = 0;
+        let autoPlay;
+
+        // Create dots
+        if(dotsContainer && slides.length > 1) {
+            slides.forEach((_,i) => {
+                const dot = document.createElement('button');
+                dot.className = 'slider-dot' + (i===0?' active':'');
+                dot.onclick = () => goToSlide(i);
+                dotsContainer.appendChild(dot);
+            });
+        }
+
+        function goToSlide(n) {
+            current = (n + slides.length) % slides.length;
+            slider.style.transform = `translateX(-${current*100}%)`;
+            if(dotsContainer) {
+                dotsContainer.querySelectorAll('.slider-dot').forEach((d,i)=>{
+                    d.classList.toggle('active', i===current);
+                });
+            }
+        }
+
+        window.changeSlide = function(dir) {
+            clearInterval(autoPlay);
+            goToSlide(current+dir);
+            startAutoPlay();
+        };
+
+        function startAutoPlay() {
+            if(slides.length > 1) {
+                autoPlay = setInterval(()=>goToSlide(current+1), 5000);
+            }
+        }
+        startAutoPlay();
+    }
+</script>
+</body>
+</html>
